@@ -25,7 +25,13 @@ function mhtp_consume_session( $wp_user_id ): bool {
     // The $wpdb->update method returns the number of rows updated.
     $updated_rows = $wpdb->query(
         $wpdb->prepare(
-            "UPDATE {$table_name} SET sessions_remaining = sessions_remaining - 1 WHERE user_id = %d AND sessions_remaining > 0",
+            $updated_rows = $wpdb->query( $wpdb->prepare(
+                "UPDATE {$table_name}
+                SET sessions_remaining = sessions_remaining - 1
+                WHERE user_id = %d AND sessions_remaining > 0",
+            $wp_user_id
+            ));
+
             $wp_user_id
         )
     );
