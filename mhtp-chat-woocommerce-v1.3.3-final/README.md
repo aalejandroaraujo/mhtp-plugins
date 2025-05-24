@@ -18,6 +18,8 @@ MHTP Chat Interface is a WordPress plugin that provides a chat interface for exp
 1. Upload the plugin files to the `/wp-content/plugins/mhtp-chat-woocommerce` directory, or install the plugin through the WordPress plugins screen
 2. Activate the plugin through the 'Plugins' screen in WordPress
 3. Use the shortcode `[mhtp_chat_interface]` or `[mhtp_chat]` to display the chat interface on any page or post
+4. ⚙️ **Botpress URL**: now reads from
+   `MHTP_BOTPRESS_API_URL` constant pointing to your published webchat config URL.
 
 ## Usage
 The plugin provides two shortcodes:
@@ -26,6 +28,10 @@ The plugin provides two shortcodes:
 
 You can specify an expert ID directly:
 - `[mhtp_chat_interface expert_id="123"]`
+
+The front-end script sends messages via `fetch` to the localized REST
+endpoint. Ensure `mhtpChatConfig.rest_url` and `mhtpChatConfig.nonce` are
+printed by `wp_localize_script`.
 
 ## Session Management
 This plugin now properly handles session decrementation when users start a chat:
