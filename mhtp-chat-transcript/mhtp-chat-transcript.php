@@ -73,7 +73,7 @@ function mhtp_chatlog_save( WP_REST_Request $request ) {
             'wp_user_id' => get_current_user_id(),
             'convo_id'   => isset( $params['convo_id'] ) ? sanitize_text_field( $params['convo_id'] ) : '',
             'summary'    => isset( $params['summary'] ) ? wp_kses_post( $params['summary'] ) : '',
-            'transcript' => isset( $params['transcript'] ) ? wp_kses_post( $params['transcript'] ) : '',
+            'transcript' => isset( $params['transcript'] ) ? wp_json_encode( $params['transcript'] ) : '',
             'sentiment'  => isset( $params['sentiment'] ) ? sanitize_text_field( $params['sentiment'] ) : '',
         ),
         array( '%d', '%s', '%s', '%s', '%s' )
