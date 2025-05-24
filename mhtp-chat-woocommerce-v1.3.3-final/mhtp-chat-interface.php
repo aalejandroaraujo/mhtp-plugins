@@ -22,6 +22,8 @@ define('MHTP_CHAT_VERSION', '1.3.3');
 define('MHTP_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('MHTP_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MHTP_CHAT_PLUGIN_FILE', __FILE__);
+// Endpoint for forwarding messages to Botpress
+define('MHTP_BOTPRESS_API_URL', 'https://botpress.example.com/api/message');
 
 /**
  * Main plugin class
@@ -47,6 +49,9 @@ class MHTP_Chat_Interface {
         // Register AJAX handlers
         add_action('wp_ajax_mhtp_start_chat_session', array($this, 'ajax_start_chat_session'));
         add_action('wp_ajax_nopriv_mhtp_start_chat_session', array($this, 'ajax_start_chat_session'));
+
+        // Register REST routes
+        add_action('rest_api_init', array($this, 'register_rest_routes'));
     }
     
     /**
@@ -327,6 +332,58 @@ class MHTP_Chat_Interface {
         }
         
         return false;
+    }
+
+    /**
+     * Register REST routes.
+     */
+    public function register_rest_routes() {
+        register_rest_route(
+            'mhtp-chat/v1',
+            '/message',
+            array(
+                'methods'             => 'POST',
+                'callback'            => array($this, 'rest_proxy_message'),
+                'permission_callback' => function () {
+                    return is_user_logged_in();
+                },
+                'args'                => array(
+                    'message' => array(
+                        'required'          => true,
+                        'sanitize_callback' => 'sanitize_text_field',
+                    ),
+                ),
+            )
+        );
+    }
+
+    /**
+     * Forward user message to Botpress and return the reply.
+     *
+     * @param WP_REST_Request $request Request object.
+     *
+     * @return WP_REST_Response
+     */
+    public function rest_proxy_message(WP_REST_Request $request) {
+        $message = $request->get_param('message');
+
+        $response = wp_remote_post(
+            MHTP_BOTPRESS_API_URL,
+            array(
+                'headers' => array('Content-Type' => 'application/json'),
+                'body'    => wp_json_encode(array('message' => $message)),
+                'timeout' => 15,
+            )
+        );
+
+        if (is_wp_error($response)) {
+            return new WP_REST_Response(array('error' => 'Failed to contact Botpress'), 500);
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        $code = wp_remote_retrieve_response_code($response);
+
+        return new WP_REST_Response(json_decode($body, true), $code);
     }
     
     /**

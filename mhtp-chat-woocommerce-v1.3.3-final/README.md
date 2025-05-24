@@ -44,6 +44,9 @@ This plugin now properly handles session decrementation when users start a chat:
 - Fixed expert list rendering by restoring original data passing mechanism
 - Restored original plugin structure for better compatibility
 
+### 1.3.4
+- Added REST endpoint `mhtp-chat/v1/message` to proxy messages to Botpress.
+
 ### 1.2.0
 - Added PDF download functionality
 - Enhanced chat interface styling
