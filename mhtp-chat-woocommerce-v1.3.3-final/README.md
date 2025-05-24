@@ -23,6 +23,9 @@ MHTP Chat Interface is a WordPress plugin that provides a chat interface for exp
 4. ⚙️ **Botpress URL**: now reads from
    `MHTP_BOTPRESS_API_URL` constant pointing to your published webchat config URL.
 
+> \u2699\ufe0f **Botpress URL**: now reads from  
+> `MHTP_BOTPRESS_API_URL` constant pointing to your published webchat config URL.
+
 ## Usage
 The plugin provides two shortcodes:
 - `[mhtp_chat_interface]` - The main shortcode
@@ -53,7 +56,10 @@ This plugin now properly handles session decrementation when users start a chat:
 - Restored original plugin structure for better compatibility
 
 ### 1.3.4
-- Added REST endpoint `mhtp-chat/v1/message` to proxy messages to Botpress.
+- Botpress URL now read from `MHTP_BOTPRESS_API_URL` constant pointing to your published webchat config.
+- Expose REST endpoint URL and nonce via `mhtpChatConfig` in the PHP registration routine.
+- Secure route with WP nonce permission callback.
+- sendMessage() now POSTs to the localized REST endpoint with fetch() and handles JSON reply.
 
 ### 1.2.0
 - Added PDF download functionality
@@ -68,3 +74,17 @@ This plugin now properly handles session decrementation when users start a chat:
 
 ## Credits
 Developed by Araujo Innovations
+
+## Usage example
+```js
+fetch(mhtpChatConfig.rest_url, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-WP-Nonce': mhtpChatConfig.nonce
+  },
+  body: JSON.stringify({ message: 'Hola desde staging' })
+})
+  .then(r => r.json())
+  .then(d => console.log('Bot response:', d.text));
+```
