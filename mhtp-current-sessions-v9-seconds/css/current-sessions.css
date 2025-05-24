@@ -1,0 +1,229 @@
+.mhtp-cs-container {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    color: #333;
+    font-size: 18px; /* Increased base font size */
+}
+
+.mhtp-cs-header {
+    margin-bottom: 30px;
+}
+
+.mhtp-cs-header h2 {
+    font-size: 36px; /* Increased from 32px */
+    font-weight: 600;
+    margin: 0;
+    color: #333;
+}
+
+/* Summary styles */
+.mhtp-cs-summary {
+    background-color: #f0f5ff;
+    border-left: 4px solid #3a5998;
+    padding: 15px 20px;
+    margin-bottom: 30px;
+    border-radius: 4px;
+}
+
+.mhtp-cs-summary p {
+    margin: 0;
+    font-size: 20px; /* Increased from 16px */
+    line-height: 1.5;
+    font-weight: 500; /* Added for better visibility */
+}
+
+.mhtp-cs-summary p strong {
+    font-size: 22px; /* Increased size for the number of sessions */
+    font-weight: 700;
+}
+
+/* Purchase section styles */
+.mhtp-cs-purchase-section {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 40px;
+}
+
+.mhtp-cs-purchase-title {
+    font-size: 28px; /* Increased from 24px */
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.mhtp-cs-purchase-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.mhtp-cs-purchase-option {
+    text-decoration: none;
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
+}
+
+.mhtp-cs-purchase-image {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 180px;
+    border-radius: 8px;
+    color: white;
+    transition: transform 0.3s ease;
+}
+
+.mhtp-cs-purchase-image:hover {
+    transform: translateY(-5px);
+}
+
+.mhtp-cs-purchase-1 {
+    background-color: #3a5998;
+}
+
+.mhtp-cs-purchase-5 {
+    background-color: #7986cb;
+}
+
+.mhtp-cs-purchase-10 {
+    background-color: #d4af37;
+}
+
+.mhtp-cs-purchase-count {
+    font-size: 54px; /* Increased from 48px */
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.mhtp-cs-purchase-label {
+    font-size: 24px; /* Increased from 20px */
+    font-weight: 500;
+}
+
+/* History section styles */
+.mhtp-cs-history-section {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 20px;
+}
+
+.mhtp-cs-history-title {
+    font-size: 28px; /* Increased from 24px */
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.mhtp-cs-history-table-container {
+    overflow-x: auto;
+}
+
+.mhtp-cs-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 18px; /* Increased table font size */
+}
+
+.mhtp-cs-history-table th,
+.mhtp-cs-history-table td {
+    padding: 14px 18px; /* Increased padding */
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.mhtp-cs-history-table th {
+    background-color: #f2f2f2;
+    font-weight: 600;
+    font-size: 19px; /* Slightly larger than regular table text */
+}
+
+.mhtp-cs-history-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.mhtp-cs-button {
+    display: inline-block;
+    padding: 10px 18px; /* Increased padding */
+    background-color: #3a5998;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 16px; /* Increased from 14px */
+    transition: background-color 0.3s ease;
+}
+
+.mhtp-cs-button:hover {
+    background-color: #2d4373;
+    color: white;
+}
+
+.mhtp-cs-summary-button {
+    background-color: #3a5998;
+}
+
+/* White text button class */
+.white-text-button {
+    color: white !important;
+    font-weight: bold !important;
+    text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.5) !important;
+}
+
+.white-text-button:hover {
+    color: white !important;
+}
+
+.mhtp-cs-empty-history {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-size: 18px; /* Increased font size */
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .mhtp-cs-purchase-options {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .mhtp-cs-purchase-option {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .mhtp-cs-history-table th,
+    .mhtp-cs-history-table td {
+        padding: 10px 12px;
+    }
+    
+    /* Maintain readable font size on mobile */
+    .mhtp-cs-container {
+        font-size: 16px;
+    }
+    
+    .mhtp-cs-summary p {
+        font-size: 18px;
+    }
+}
+
+/* Not logged in message */
+.mhtp-cs-not-logged-in {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 18px; /* Increased font size */
+}

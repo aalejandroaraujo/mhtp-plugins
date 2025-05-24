@@ -1,0 +1,59 @@
+# MHTP Chat Interface - Version 1.3.0
+
+## Description
+MHTP Chat Interface is a WordPress plugin that provides a chat interface for experts with WooCommerce integration. This plugin allows users to chat with experts who are set up as WooCommerce products.
+
+## New in Version 1.3.0
+- **Unified Session Management**: Now properly decrements sessions when users start a chat, working with both test sessions (from MHTP Test Sessions plugin) and paid sessions (from WooCommerce)
+- **Improved Session Tracking**: Added logging for session usage to help with reporting and analytics
+- **Better Integration**: Seamless integration with the MHTP Test Sessions plugin
+- **Fixed Expert List Rendering**: Restored the original plugin structure and data passing mechanism to ensure experts display properly
+
+## Requirements
+- WordPress 5.0 or higher
+- WooCommerce 4.0 or higher
+- MHTP Test Sessions plugin (optional, for test session management)
+
+## Installation
+1. Upload the plugin files to the `/wp-content/plugins/mhtp-chat-woocommerce` directory, or install the plugin through the WordPress plugins screen
+2. Activate the plugin through the 'Plugins' screen in WordPress
+3. Use the shortcode `[mhtp_chat_interface]` or `[mhtp_chat]` to display the chat interface on any page or post
+
+## Usage
+The plugin provides two shortcodes:
+- `[mhtp_chat_interface]` - The main shortcode
+- `[mhtp_chat]` - An alias for backward compatibility
+
+You can specify an expert ID directly:
+- `[mhtp_chat_interface expert_id="123"]`
+
+## Session Management
+This plugin now properly handles session decrementation when users start a chat:
+
+1. If the MHTP Test Sessions plugin is active, it first tries to use a test session
+2. If no test sessions are available, it falls back to using WooCommerce sessions
+3. If no sessions of either type are available, the user receives an error message
+
+## Changelog
+
+### 1.3.0
+- Added unified session management for both test and paid sessions
+- Integrated with MHTP Test Sessions plugin
+- Added session usage logging for better tracking
+- Fixed method name mismatch in session decrementation
+- Fixed expert list rendering by restoring original data passing mechanism
+- Restored original plugin structure for better compatibility
+
+### 1.2.0
+- Added PDF download functionality
+- Enhanced chat interface styling
+
+### 1.1.0
+- Added expert selection screen
+- Improved mobile responsiveness
+
+### 1.0.0
+- Initial release
+
+## Credits
+Developed by Araujo Innovations

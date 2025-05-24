@@ -1,0 +1,42 @@
+/* Aggressive fix for Ver resumen button text color */
+.mhtp-download-button {
+    width: 100%;
+    padding: 8px;
+    background-color: #3a5998;
+    color: white !important; /* Ensure text is white and override any other styles */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+    font-weight: 600 !important; /* Increased font weight for better visibility */
+    text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.5) !important; /* Add text shadow for better contrast */
+}
+
+.mhtp-download-button:hover {
+    background-color: #2d4373;
+    color: white !important; /* Maintain white text on hover */
+}
+
+.mhtp-download-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    color: white !important; /* Keep text white even when disabled */
+}
+
+/* Target the specific Ver resumen buttons in the session history table */
+.mhtp-session-history-table .mhtp-download-button,
+table tr td .mhtp-download-button,
+a.mhtp-download-button,
+button.mhtp-download-button,
+input.mhtp-download-button,
+[class*="ver-resumen"],
+[id*="ver-resumen"],
+[class*="ver_resumen"],
+[id*="ver_resumen"] {
+    color: white !important;
+    font-weight: 600 !important;
+    text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Add inline styles via JavaScript as a fallback */

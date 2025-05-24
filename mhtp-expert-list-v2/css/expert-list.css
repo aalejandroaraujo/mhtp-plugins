@@ -1,0 +1,211 @@
+/**
+ * MHTP Expert List Styles
+ */
+
+/* Contenedor principal */
+.mhtp-expert-list-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+/* Grid de expertos */
+.mhtp-expert-list-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+    margin: 20px 0;
+}
+
+/* Tarjeta de experto */
+.mhtp-expert-card {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.mhtp-expert-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Imagen del experto */
+.mhtp-expert-image {
+    width: 100%;
+    height: 250px;
+    overflow: hidden;
+}
+
+.mhtp-expert-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.mhtp-expert-card:hover .mhtp-expert-image img {
+    transform: scale(1.05);
+}
+
+/* Contenido del experto */
+.mhtp-expert-content {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Título del experto */
+.mhtp-expert-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 15px 0;
+    color: #333;
+}
+
+/* Descripción del experto */
+.mhtp-expert-description {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #666;
+    margin-bottom: 20px;
+    flex-grow: 1;
+}
+
+/* Acciones del experto */
+.mhtp-expert-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: auto;
+}
+
+/* Botón de detalles */
+.mhtp-expert-details-btn {
+    display: inline-block;
+    padding: 8px 15px;
+    background-color: #f5f5f5;
+    color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    font-weight: 500;
+}
+
+.mhtp-expert-details-btn:hover {
+    background-color: #e0e0e0;
+    color: #000;
+}
+
+/* Botón de consulta */
+.mhtp-expert-consult-btn {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #3a5998; /* Azul elegante que combina con el diseño */
+    color: white !important; /* Texto blanco para mejor contraste - !important para forzar */
+    text-decoration: none;
+    border-radius: 4px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    font-weight: 500;
+}
+
+.mhtp-expert-consult-btn:hover {
+    background-color: #2d4373; /* Versión más oscura para hover */
+    color: white !important; /* Mantener texto blanco en hover */
+}
+
+/* Mensaje cuando no hay expertos */
+.mhtp-expert-list-empty {
+    text-align: center;
+    padding: 40px 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.mhtp-expert-list-empty p {
+    font-size: 1.1rem;
+    color: #666;
+}
+
+/* Filtros de expertos */
+.mhtp-expert-filters {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.mhtp-expert-filter-select {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 1rem;
+    color: #333;
+    cursor: pointer;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="6"><path d="M0 0h12L6 6z" fill="%23333"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+}
+
+.mhtp-expert-filter-select:focus {
+    outline: none;
+    border-color: #3a5998;
+}
+
+/* Búsqueda de expertos */
+.mhtp-expert-search {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.mhtp-expert-search-input {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    color: #333;
+}
+
+.mhtp-expert-search-input:focus {
+    outline: none;
+    border-color: #3a5998;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .mhtp-expert-list-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .mhtp-expert-image {
+        height: 200px;
+    }
+    
+    .mhtp-expert-title {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .mhtp-expert-list-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .mhtp-expert-card {
+        max-width: 100%;
+    }
+}
