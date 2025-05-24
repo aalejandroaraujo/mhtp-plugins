@@ -181,43 +181,33 @@ jQuery(document).ready(function($) {
     // Send message function
     function sendMessage() {
         const message = chatInput.val().trim();
-        
+
         if (message && sessionActive) {
-            // Add message to chat
+            // Add message to chat immediately
             addMessage(message, 'user');
-            
-            // Store message for saving
             storeMessage(message, 'user', getCurrentTime());
-            
-            // Clear input
             chatInput.val('');
-            
-            // Calculate random delay between 1-2 seconds
-            const randomDelay = 1000 + Math.random() * 1000;
-            
-            // Simulate expert response after the random delay
-            setTimeout(function() {
-                simulateTyping();
-                
-                setTimeout(function() {
-                    const responses = [
-                        "Entiendo lo que me estás contando. ¿Podrías darme más detalles?",
-                        "Gracias por compartir eso conmigo. ¿Cómo te hace sentir esta situación?",
-                        "Es normal sentirse así en estas circunstancias. ¿Desde cuándo te ocurre?",
-                        "Estoy aquí para ayudarte. ¿Hay algo más que quieras comentarme?",
-                        "Vamos a trabajar juntos en esto. ¿Qué has intentado hasta ahora?"
-                    ];
-                    
-                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                    addMessage(randomResponse, 'expert');
-                    
-                    // Store expert message for saving
-                    storeMessage(randomResponse, 'expert', getCurrentTime());
-                    
-                    // Remove typing indicator
-                    $('.mhtp-typing-indicator').remove();
-                }, 1500);
-            }, randomDelay);
+
+            fetch(mhtpChatConfig.rest_url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-WP-Nonce': mhtpChatConfig.nonce
+                },
+                body: JSON.stringify({ message: message })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.text) {
+                        addMessage(data.text, 'expert');
+                        storeMessage(data.text, 'expert', getCurrentTime());
+                    } else if (data && data.error) {
+                        addSystemMessage('Error: ' + data.error);
+                    }
+                })
+                .catch(err => {
+                    addSystemMessage('Error de conexión: ' + err.message);
+                });
         }
     }
     

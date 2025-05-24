@@ -111,6 +111,16 @@ class MHTP_Chat_Interface {
                 'session_ended' => __('La sesión ha finalizado.', 'mhtp-chat-interface'),
             )
         ));
+
+        // Expose REST endpoint for chat messages
+        wp_localize_script(
+            'mhtp-chat-interface',
+            'mhtpChatConfig',
+            array(
+                'rest_url' => rest_url('mhtp-chat/v1/message'),
+                'nonce'    => wp_create_nonce('wp_rest')
+            )
+        );
     }
     
     /**
