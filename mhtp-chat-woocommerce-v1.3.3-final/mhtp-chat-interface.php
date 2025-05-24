@@ -23,7 +23,10 @@ define('MHTP_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('MHTP_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MHTP_CHAT_PLUGIN_FILE', __FILE__);
 // Endpoint for forwarding messages to Botpress
-define('MHTP_BOTPRESS_API_URL', 'https://botpress.example.com/api/message');
+define(
+    'MHTP_BOTPRESS_API_URL',
+    'https://cdn.botpress.cloud/webchat/v2.4/shareable.html?configUrl=https://files.bpcontent.cloud/2025/05/24/12/20250524123453-GNTZTZNC.json'
+);
 
 /**
  * Main plugin class
@@ -338,6 +341,7 @@ class MHTP_Chat_Interface {
      * Register REST routes.
      */
     public function register_rest_routes() {
+        error_log('MHTP Chat Interface → register_rest_routes() invoked');
         register_rest_route(
             'mhtp-chat/v1',
             '/message',
