@@ -338,6 +338,7 @@ class MHTP_Chat_Interface {
      * Register REST routes.
      */
     public function register_rest_routes() {
+        error_log('MHTP Chat Interface → register_rest_routes() invoked');
         register_rest_route(
             'mhtp-chat/v1',
             '/message',
