@@ -3,7 +3,7 @@
  * Plugin Name: MHTP Chat Interface
  * Plugin URI: https://mhtp.com
  * Description: Chat interface for Mental Health Triage Platform
- * Version: 1.3.4
+ * Version: 1.4.0
  * Author: MHTP Team
  * Author URI: https://mhtp.com
  * Text Domain: mhtp-chat-interface
@@ -26,10 +26,10 @@ define('MHTP_CHAT_PLUGIN_FILE', __FILE__);
 define('MHTP_BOTPRESS_BOT_ID', 'e7a32e4e-fb02-4934-b58f-94c0679c30f9');
 define(
     'MHTP_BOTPRESS_API_URL',
-    'https://api.botpress.cloud/v1/bots/' . MHTP_BOTPRESS_BOT_ID . '/converse'
+    'https://api.botpress.cloud/v1/bots/' . MHTP_BOTPRESS_BOT_ID . '/converse/'
 );
 // API key for authenticating with Botpress Cloud
-define('MHTP_BOTPRESS_API_KEY', 'YOUR_BOTPRESS_API_KEY');
+define('MHTP_BOTPRESS_API_KEY', 'bp_pat_1GA5jZRedOXowriuF3bg4C07q9jgzaPHni8K');
 
 /**
  * Main plugin class
@@ -389,16 +389,18 @@ class MHTP_Chat_Interface {
         // Forward the message to Botpress and ensure we always
         // return a valid WP_REST_Response for the frontend.
 
+        $botpress_url = MHTP_BOTPRESS_API_URL . get_current_user_id();
+
         $response = wp_remote_post(
-            MHTP_BOTPRESS_API_URL,
+            $botpress_url,
             array(
                 'headers' => array(
                     'Content-Type'  => 'application/json',
                     'Authorization' => 'Bearer ' . MHTP_BOTPRESS_API_KEY,
                 ),
                 'body'    => wp_json_encode(array(
-                    'botId'   => MHTP_BOTPRESS_BOT_ID,
-                    'message' => $message,
+                    'type' => 'text',
+                    'text' => $message,
                 )),
                 'timeout' => 15,
             )
@@ -421,6 +423,8 @@ class MHTP_Chat_Interface {
             error_log('Botpress returned empty body');
             return new WP_REST_Response(array('error' => 'Empty response from Botpress'), 502);
         }
+
+        error_log('Botpress response: ' . $body);
 
         $decoded = json_decode($body, true);
 
