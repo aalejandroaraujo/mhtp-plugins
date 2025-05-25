@@ -1,4 +1,4 @@
-# MHTP Chat Interface - Version 1.3.0
+# MHTP Chat Interface - Version 1.4.0
 
 ## Description
 MHTP Chat Interface is a WordPress plugin that provides a chat interface for experts with WooCommerce integration. This plugin allows users to chat with experts who are set up as WooCommerce products.
@@ -15,16 +15,14 @@ MHTP Chat Interface is a WordPress plugin that provides a chat interface for exp
 - MHTP Test Sessions plugin (optional, for test session management)
 
 ## Installation
-> ⚙️ **Botpress URL**: now reads from  
-> `MHTP_BOTPRESS_API_URL` constant pointing to your published webchat config URL.
+> Botpress integration now uses the official API. Configure the
+> `MHTP_BOTPRESS_API_URL` constant with your Botpress Cloud endpoint
+> (`https://api.botpress.cloud/v1/bots/<BOT_ID>/converse/`) and set
+> `MHTP_BOTPRESS_API_KEY` to your Botpress personal access token.
 1. Upload the plugin files to the `/wp-content/plugins/mhtp-chat-woocommerce` directory, or install the plugin through the WordPress plugins screen
 2. Activate the plugin through the 'Plugins' screen in WordPress
 3. Use the shortcode `[mhtp_chat_interface]` or `[mhtp_chat]` to display the chat interface on any page or post
-4. ⚙️ **Botpress URL**: now reads from
-   `MHTP_BOTPRESS_API_URL` constant pointing to your published webchat config URL.
-
-> \u2699\ufe0f **Botpress URL**: now reads from  
-> `MHTP_BOTPRESS_API_URL` constant pointing to your published webchat config URL.
+4. Ensure the constants `MHTP_BOTPRESS_API_URL` and `MHTP_BOTPRESS_API_KEY` are set in `mhtp-chat-interface.php`.
 
 ## Usage
 The plugin provides two shortcodes:
@@ -49,6 +47,14 @@ This plugin now properly handles session decrementation when users start a chat:
 
 ## Changelog
 
+### 1.4.0
+- Switched to the Botpress Cloud programmatic API with support for API keys.
+- Added new constants `MHTP_BOTPRESS_API_URL` and `MHTP_BOTPRESS_API_KEY`.
+- REST proxy now logs any unexpected HTTP status codes and prints the full
+  Botpress response for debugging.
+- Requests are sent to `/converse/<WP user ID>` so each WordPress user has a
+  unique conversation context.
+
 ### 1.3.5
 - Fixed 403 errors when sending messages by replacing the REST route permission
   callback with an anonymous function. A debug log entry now confirms the
@@ -71,7 +77,7 @@ This plugin now properly handles session decrementation when users start a chat:
 - Restored original plugin structure for better compatibility
 
 ### 1.3.3
-- Botpress URL now read from `MHTP_BOTPRESS_API_URL` constant pointing to your published webchat config.
+- Botpress URL now read from `MHTP_BOTPRESS_API_URL` constant pointing to your Botpress Cloud API.
 - Expose REST endpoint URL and nonce via `mhtpChatConfig` in the PHP registration routine.
 - Secure route with WP nonce permission callback.
 - sendMessage() now POSTs to the localized REST endpoint with fetch() and handles JSON reply.
