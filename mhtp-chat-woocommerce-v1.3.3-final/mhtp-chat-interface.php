@@ -18,15 +18,18 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('MHTP_CHAT_VERSION', '1.3.4');
+define('MHTP_CHAT_VERSION', '1.4.0');
 define('MHTP_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('MHTP_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MHTP_CHAT_PLUGIN_FILE', __FILE__);
-// Endpoint for forwarding messages to Botpress
+// Botpress identifiers
+define('MHTP_BOTPRESS_BOT_ID', 'e7a32e4e-fb02-4934-b58f-94c0679c30f9');
 define(
     'MHTP_BOTPRESS_API_URL',
-    'https://cdn.botpress.cloud/webchat/v2.4/shareable.html?configUrl=https://files.bpcontent.cloud/2025/05/24/12/20250524123453-GNTZTZNC.json'
+    'https://api.botpress.cloud/v1/bots/' . MHTP_BOTPRESS_BOT_ID . '/converse'
 );
+// API key for authenticating with Botpress Cloud
+define('MHTP_BOTPRESS_API_KEY', 'YOUR_BOTPRESS_API_KEY');
 
 /**
  * Main plugin class
@@ -389,8 +392,14 @@ class MHTP_Chat_Interface {
         $response = wp_remote_post(
             MHTP_BOTPRESS_API_URL,
             array(
-                'headers' => array('Content-Type' => 'application/json'),
-                'body'    => wp_json_encode(array('message' => $message)),
+                'headers' => array(
+                    'Content-Type'  => 'application/json',
+                    'Authorization' => 'Bearer ' . MHTP_BOTPRESS_API_KEY,
+                ),
+                'body'    => wp_json_encode(array(
+                    'botId'   => MHTP_BOTPRESS_BOT_ID,
+                    'message' => $message,
+                )),
                 'timeout' => 15,
             )
         );
@@ -402,6 +411,11 @@ class MHTP_Chat_Interface {
 
         $code = wp_remote_retrieve_response_code($response);
         $body = wp_remote_retrieve_body($response);
+
+        if ($code < 200 || $code >= 300) {
+            error_log('Unexpected Botpress status ' . $code . ': ' . $body);
+            return new WP_REST_Response(array('error' => 'Unexpected response from Botpress'), 502);
+        }
 
         if (empty($body)) {
             error_log('Botpress returned empty body');
