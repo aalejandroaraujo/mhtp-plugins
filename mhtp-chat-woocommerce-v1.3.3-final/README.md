@@ -38,6 +38,8 @@ The front-end script sends messages via `fetch` to the localized REST
 endpoint. Ensure `mhtpChatConfig.rest_url` and `mhtpChatConfig.nonce` are
 printed by `wp_localize_script`.
 
+> **Note** Some security plugins or hosting providers may block requests to custom REST endpoints like `/mhtp-chat/v1/message`. If message sending fails, check your host or plugin settings.
+
 ## Session Management
 This plugin now properly handles session decrementation when users start a chat:
 
@@ -51,6 +53,11 @@ This plugin now properly handles session decrementation when users start a chat:
 - Fixed 403 errors when sending messages by replacing the REST route permission
   callback with an anonymous function. A debug log entry now confirms the
   callback executes.
+
+### 1.3.6
+- Ensured the REST proxy always returns a valid JSON response by validating the
+  Botpress reply. Errors now produce a structured `{ "error": ... }` payload so
+  the frontend never receives an empty body.
 
 ### 1.3.4
 - Added nonce header to REST fetch.
