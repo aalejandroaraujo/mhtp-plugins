@@ -358,9 +358,7 @@ class MHTP_Chat_Interface {
             array(
                 'methods'             => 'POST',
                 'callback'            => array($this, 'rest_proxy_message'),
-                'permission_callback' => function () {
-                    return is_user_logged_in();
-                },
+                'permission_callback' => '__return_true',
                 'args'                => array(
                     'message' => array(
                         'required'          => true,
