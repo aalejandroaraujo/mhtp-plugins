@@ -191,23 +191,24 @@ jQuery(document).ready(function($) {
             fetch(mhtpChatConfig.rest_url, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-WP-Nonce': mhtpChatConfig.nonce
+                    'Content-Type': 'application/json'
+                    // 'X-WP-Nonce': mhtpChatConfig.nonce
                 },
-                body: JSON.stringify({ message: message })
+                credentials: 'same-origin',
+                body: JSON.stringify({ message })
             })
                 .then(res => res.json())
                 .then(data => {
-                    if (data && data.text) {
+                    if (data.text) {
                         addMessage(data.text, 'expert');
                         storeMessage(data.text, 'expert', getCurrentTime());
-                    } else if (data && data.error) {
+                    } else if (data.error) {
                         addSystemMessage('Error: ' + data.error);
                     }
                 })
-                .catch(err => {
-                    addSystemMessage('Error de conexión: ' + err.message);
-                });
+                .catch(err =>
+                    addSystemMessage('Error de conexión: ' + err.message)
+                );
         }
     }
     

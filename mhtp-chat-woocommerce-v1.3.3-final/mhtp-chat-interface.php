@@ -377,6 +377,7 @@ class MHTP_Chat_Interface {
      * @return WP_REST_Response
      */
     public function rest_proxy_message(WP_REST_Request $request) {
+        error_log('→ rest_proxy_message payload=' . print_r($request->get_params(), true));
         $message = $request->get_param('message');
 
         $response = wp_remote_post(
