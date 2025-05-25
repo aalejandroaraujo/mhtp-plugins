@@ -47,6 +47,24 @@ This plugin now properly handles session decrementation when users start a chat:
 
 ## Changelog
 
+### 1.x.y
+- Version bumped to **1.x.y**.
+- Introduced the constant `MHTP_BOTPRESS_API_URL` pointing to your published webchat config URL.
+- Front-end script now posts messages with:
+```js
+fetch(mhtpChatConfig.rest_url, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-WP-Nonce': mhtpChatConfig.nonce
+  },
+  credentials: 'same-origin',
+  body: JSON.stringify({ message })
+})
+```
+- Added diagnostic logging in `rest_proxy_message()`; check your PHP error log with:
+`grep "→ rest_proxy_message" error_log`
+
 ### 1.3.0
 - Added unified session management for both test and paid sessions
 - Integrated with MHTP Test Sessions plugin
