@@ -359,7 +359,7 @@ class MHTP_Chat_Interface {
                 'methods'             => 'POST',
                 'callback'            => array($this, 'rest_proxy_message'),
                 'permission_callback' => function() {
-                    error_log('Permission callback called');
+                    error_log('Permission callback invoked by user ' . get_current_user_id());
                     return true;
                 },
                 'args'                => array(
@@ -383,6 +383,9 @@ class MHTP_Chat_Interface {
         error_log('→ rest_proxy_message payload=' . print_r($request->get_params(), true));
         $message = $request->get_param('message');
 
+        // Forward the message to Botpress and ensure we always
+        // return a valid WP_REST_Response for the frontend.
+
         $response = wp_remote_post(
             MHTP_BOTPRESS_API_URL,
             array(
@@ -393,13 +396,26 @@ class MHTP_Chat_Interface {
         );
 
         if (is_wp_error($response)) {
+            error_log('Botpress request failed: ' . $response->get_error_message());
             return new WP_REST_Response(array('error' => 'Failed to contact Botpress'), 500);
         }
 
-        $body = wp_remote_retrieve_body($response);
         $code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
 
-        return new WP_REST_Response(json_decode($body, true), $code);
+        if (empty($body)) {
+            error_log('Botpress returned empty body');
+            return new WP_REST_Response(array('error' => 'Empty response from Botpress'), 502);
+        }
+
+        $decoded = json_decode($body, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log('Invalid JSON from Botpress: ' . json_last_error_msg());
+            return new WP_REST_Response(array('error' => 'Invalid response from Botpress'), 502);
+        }
+
+        return new WP_REST_Response($decoded, $code);
     }
     
     /**
