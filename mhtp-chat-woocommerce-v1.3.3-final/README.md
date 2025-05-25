@@ -19,6 +19,7 @@ MHTP Chat Interface is a WordPress plugin that provides a chat interface for exp
 > `MHTP_BOTPRESS_API_URL` constant with your Botpress Cloud endpoint
 > (`https://api.botpress.cloud/v1/bots/<BOT_ID>/converse/`) and set
 > `MHTP_BOTPRESS_API_KEY` to your Botpress personal access token.
+
 1. Upload the plugin files to the `/wp-content/plugins/mhtp-chat-woocommerce` directory, or install the plugin through the WordPress plugins screen
 2. Activate the plugin through the 'Plugins' screen in WordPress
 3. Use the shortcode `[mhtp_chat_interface]` or `[mhtp_chat]` to display the chat interface on any page or post
