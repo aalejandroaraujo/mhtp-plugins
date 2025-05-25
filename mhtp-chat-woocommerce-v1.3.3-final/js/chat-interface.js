@@ -191,8 +191,8 @@ jQuery(document).ready(function($) {
             fetch(mhtpChatConfig.rest_url, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
-                    // 'X-WP-Nonce': mhtpChatConfig.nonce
+                    'Content-Type': 'application/json',
+                    'X-WP-Nonce': mhtpChatConfig.nonce
                 },
                 credentials: 'same-origin',
                 body: JSON.stringify({ message })
