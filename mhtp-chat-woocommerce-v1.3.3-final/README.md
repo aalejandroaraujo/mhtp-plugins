@@ -47,6 +47,11 @@ This plugin now properly handles session decrementation when users start a chat:
 
 ## Changelog
 
+### 1.3.5
+- Fixed 403 errors when sending messages by replacing the REST route permission
+  callback with an anonymous function. A debug log entry now confirms the
+  callback executes.
+
 ### 1.3.4
 - Added nonce header to REST fetch.
 
