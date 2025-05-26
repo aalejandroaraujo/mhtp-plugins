@@ -61,7 +61,6 @@ This plugin now properly handles session decrementation when users start a chat:
 ### 2.0.1
 - Register AJAX handlers for `mhtp_start_chat_session` for logged in and guest
   users. The lack of these hooks previously caused chat initialization failures.
-
 ### 2.0.0
 - Migrated to Botpress **Chat API** at `https://chat.botpress.cloud/v1`.
 - Users and conversations are created automatically when a session begins.
