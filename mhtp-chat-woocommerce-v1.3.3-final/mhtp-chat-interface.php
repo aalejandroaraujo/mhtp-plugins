@@ -304,13 +304,17 @@ class MHTP_Chat_Interface {
         // Prepare Botpress user and conversation
         $bp_user_id = $this->create_botpress_user($user_id);
         if (is_wp_error($bp_user_id)) {
-            wp_send_json_error(array('message' => 'Failed to prepare chat user'));
+            $error_msg = $bp_user_id->get_error_message();
+            error_log('Failed to prepare chat user: ' . $error_msg);
+            wp_send_json_error(array('message' => 'Failed to prepare chat user: ' . $error_msg));
             return;
         }
 
         $conversation_id = $this->create_botpress_conversation($bp_user_id);
         if (is_wp_error($conversation_id)) {
-            wp_send_json_error(array('message' => 'Failed to start conversation'));
+            $error_msg = $conversation_id->get_error_message();
+            error_log('Failed to start conversation: ' . $error_msg);
+            wp_send_json_error(array('message' => 'Failed to start conversation: ' . $error_msg));
             return;
         }
 
@@ -386,28 +390,29 @@ class MHTP_Chat_Interface {
 
         $bp_user_id = 'wp-' . $wp_user_id;
 
-        $url = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'users';
-        $response = wp_remote_post(
-            $url,
-            array(
-                'headers' => array(
-                    'Content-Type'  => 'application/json',
-                    'Authorization' => 'Bearer ' . MHTP_BOTPRESS_API_KEY,
-                ),
-                'body'    => wp_json_encode(array('id' => $bp_user_id)),
-                'timeout' => 15,
-            )
+        $url          = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'users';
+        $request_args = array(
+            'headers' => array(
+                'Content-Type'  => 'application/json',
+                'Authorization' => 'Bearer ' . MHTP_BOTPRESS_API_KEY,
+            ),
+            'body'    => wp_json_encode(array('id' => $bp_user_id)),
+            'timeout' => 15,
         );
+        $response = wp_remote_post($url, $request_args);
 
         if (is_wp_error($response)) {
+            error_log('Botpress user creation request: ' . $url . ' ' . print_r($request_args, true));
             error_log('Botpress user creation failed: ' . $response->get_error_message());
             return $response;
         }
 
         $code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
         if ($code !== 201 && $code !== 200 && $code !== 409) {
-            error_log('Unexpected status creating user: ' . $code);
-            return new WP_Error('bp_user_failed', 'Unexpected status from Botpress');
+            error_log('Botpress user creation request: ' . $url . ' ' . print_r($request_args, true));
+            error_log('Botpress user creation response (' . $code . '): ' . $body);
+            return new WP_Error('bp_user_failed', 'Unexpected status from Botpress: ' . $code);
         }
 
         return $bp_user_id;
@@ -425,29 +430,30 @@ class MHTP_Chat_Interface {
         }
 
         $conversation_id = uniqid('conv-');
-        $url = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'users/' . rawurlencode($bp_user_id) . '/conversations';
-
-        $response = wp_remote_post(
-            $url,
-            array(
-                'headers' => array(
-                    'Content-Type'  => 'application/json',
-                    'Authorization' => 'Bearer ' . MHTP_BOTPRESS_API_KEY,
-                ),
-                'body'    => wp_json_encode(array('id' => $conversation_id)),
-                'timeout' => 15,
-            )
+        $url            = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'users/' . rawurlencode($bp_user_id) . '/conversations';
+        $request_args   = array(
+            'headers' => array(
+                'Content-Type'  => 'application/json',
+                'Authorization' => 'Bearer ' . MHTP_BOTPRESS_API_KEY,
+            ),
+            'body'    => wp_json_encode(array('id' => $conversation_id)),
+            'timeout' => 15,
         );
 
+        $response = wp_remote_post($url, $request_args);
+
         if (is_wp_error($response)) {
+            error_log('Botpress conversation creation request: ' . $url . ' ' . print_r($request_args, true));
             error_log('Botpress conversation creation failed: ' . $response->get_error_message());
             return $response;
         }
 
         $code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
         if ($code !== 201 && $code !== 200 && $code !== 409) {
-            error_log('Unexpected status creating conversation: ' . $code);
-            return new WP_Error('bp_conversation_failed', 'Unexpected status from Botpress');
+            error_log('Botpress conversation creation request: ' . $url . ' ' . print_r($request_args, true));
+            error_log('Botpress conversation creation response (' . $code . '): ' . $body);
+            return new WP_Error('bp_conversation_failed', 'Unexpected status from Botpress: ' . $code);
         }
 
         return $conversation_id;
