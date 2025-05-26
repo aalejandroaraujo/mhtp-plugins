@@ -468,6 +468,35 @@ class MHTP_Chat_Interface {
     public function rest_webhook_handler(WP_REST_Request $request) {
         $payload = $request->get_json_params();
         error_log('Botpress webhook received: ' . wp_json_encode($payload));
+
+        // Attempt to extract the conversation ID and bot reply text
+        $conversation_id = '';
+        if (isset($payload['conversationId'])) {
+            $conversation_id = sanitize_text_field($payload['conversationId']);
+        }
+
+        $bot_reply = '';
+        if (isset($payload['messages'][0]['payload']['text'])) {
+            $bot_reply = sanitize_text_field($payload['messages'][0]['payload']['text']);
+        } elseif (isset($payload['payload']['text'])) {
+            $bot_reply = sanitize_text_field($payload['payload']['text']);
+        }
+
+        if ($conversation_id && $bot_reply) {
+            // Try to locate the WP user by Botpress conversation ID
+            $users = get_users(array(
+                'meta_key'   => 'mhtp_bp_conversation_id',
+                'meta_value' => $conversation_id,
+                'fields'     => 'ID',
+                'number'     => 1,
+            ));
+
+            if (!empty($users)) {
+                $user_id = (int) $users[0];
+                update_user_meta($user_id, 'mhtp_last_bot_reply', $bot_reply);
+            }
+        }
+
         return new WP_REST_Response(array('received' => true));
     }
 
