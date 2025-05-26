@@ -22,8 +22,16 @@ define('MHTP_CHAT_VERSION', '2.0.2');
 define('MHTP_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('MHTP_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MHTP_CHAT_PLUGIN_FILE', __FILE__);
-// Botpress Chat API endpoint
-define('MHTP_BOTPRESS_CHAT_API', 'https://chat.botpress.cloud/v1');
+// Botpress Chat API base URL (no trailing slash)
+define('MHTP_BOTPRESS_CHAT_API', 'https://chat.botpress.cloud');
+
+/*
+ * ID of your Botpress Cloud bot. Define in wp-config.php as
+ * MHTP_BOTPRESS_BOT_ID to override the default placeholder.
+ */
+if (!defined('MHTP_BOTPRESS_BOT_ID')) {
+    define('MHTP_BOTPRESS_BOT_ID', '{bot_id}');
+}
 
 /*
  * API key for authenticating with Botpress Cloud. For security reasons you
@@ -399,7 +407,8 @@ class MHTP_Chat_Interface {
 
         $bp_user_id = 'wp-' . $wp_user_id;
 
-        $url          = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'users';
+        $base         = trailingslashit(MHTP_BOTPRESS_CHAT_API) . trim(MHTP_BOTPRESS_BOT_ID, '/') . '/';
+        $url          = $base . 'users';
         $request_args = array(
             'headers' => array(
                 'Content-Type'  => 'application/json',
@@ -439,7 +448,8 @@ class MHTP_Chat_Interface {
             return new WP_Error('bp_no_key', 'Botpress API key not configured');
         }
 
-        $url = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'events';
+        $base    = trailingslashit(MHTP_BOTPRESS_CHAT_API) . trim(MHTP_BOTPRESS_BOT_ID, '/') . '/';
+        $url     = $base . 'conversations';
         $payload = array(
             'type'  => 'text',
             'text'  => 'start',
@@ -594,16 +604,19 @@ class MHTP_Chat_Interface {
             return new WP_REST_Response(array('error' => 'Botpress not configured'), 500);
         }
 
-        $botpress_url = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'events';
+        $base         = trailingslashit(MHTP_BOTPRESS_CHAT_API) . trim(MHTP_BOTPRESS_BOT_ID, '/') . '/';
+        if (!empty($conversation_id)) {
+            $botpress_url = $base . 'conversations/' . $conversation_id . '/messages';
+        } else {
+            $botpress_url = $base . 'conversations';
+        }
 
         $payload = array(
             'type'   => 'text',
             'text'   => $message,
             'userId' => $bp_user_id,
         );
-        if (!empty($conversation_id)) {
-            $payload['conversationId'] = $conversation_id;
-        }
+
 
         $response = wp_remote_post(
             $botpress_url,
