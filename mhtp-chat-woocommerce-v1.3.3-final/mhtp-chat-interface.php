@@ -3,7 +3,7 @@
  * Plugin Name: MHTP Chat Interface
  * Plugin URI: https://mhtp.com
  * Description: Chat interface for Mental Health Triage Platform
- * Version: 2.0.0
+ * Version: 2.0.1
  * Author: MHTP Team
  * Author URI: https://mhtp.com
  * Text Domain: mhtp-chat-interface
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('MHTP_CHAT_VERSION', '2.0.0');
+define('MHTP_CHAT_VERSION', '2.0.1');
 define('MHTP_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('MHTP_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MHTP_CHAT_PLUGIN_FILE', __FILE__);
@@ -55,7 +55,9 @@ class MHTP_Chat_Interface {
         // Register scripts and styles
         add_action('wp_enqueue_scripts', array($this, 'register_scripts'));
         
-        // Register AJAX handlers
+        // Register AJAX handlers used by the front‑end script. These must be
+        // available to both authenticated and guest users or chat will fail
+        // to initialize.
         add_action('wp_ajax_mhtp_start_chat_session', array($this, 'ajax_start_chat_session'));
         add_action('wp_ajax_nopriv_mhtp_start_chat_session', array($this, 'ajax_start_chat_session'));
 
@@ -268,7 +270,9 @@ class MHTP_Chat_Interface {
     }
     
     /**
-     * AJAX handler for starting a chat session
+     * AJAX handler for starting a chat session. This is triggered by the
+     * JavaScript front end via admin-ajax.php and must always return a JSON
+     * payload so the browser can react accordingly.
      */
     public function ajax_start_chat_session() {
         // Check nonce

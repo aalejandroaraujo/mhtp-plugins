@@ -1,4 +1,4 @@
-# MHTP Chat Interface - Version 2.0.0
+# MHTP Chat Interface - Version 2.0.1
 
 ## Description
 MHTP Chat Interface is a WordPress plugin that provides a chat interface for experts with WooCommerce integration. This plugin allows users to chat with experts who are set up as WooCommerce products.
@@ -35,6 +35,13 @@ The plugin provides two shortcodes:
 You can specify an expert ID directly:
 - `[mhtp_chat_interface expert_id="123"]`
 
+### AJAX Handlers
+The plugin registers the actions `wp_ajax_mhtp_start_chat_session` and
+`wp_ajax_nopriv_mhtp_start_chat_session`. These handlers create the Botpress
+conversation when the chat UI loads. If they are missing, every AJAX request
+will return an empty response and the front end will display "Failed to prepare
+chat user".
+
 The front-end script sends messages via `fetch` to the localized REST
 endpoint. Ensure `mhtpChatConfig.rest_url` and `mhtpChatConfig.nonce` are
 printed by `wp_localize_script`.
@@ -51,6 +58,9 @@ This plugin now properly handles session decrementation when users start a chat:
 ## Changelog
 
 
+### 2.0.1
+- Register AJAX handlers for `mhtp_start_chat_session` for logged in and guest
+  users. The lack of these hooks previously caused chat initialization failures.
 ### 2.0.0
 - Migrated to Botpress **Chat API** at `https://chat.botpress.cloud/v1`.
 - Users and conversations are created automatically when a session begins.
