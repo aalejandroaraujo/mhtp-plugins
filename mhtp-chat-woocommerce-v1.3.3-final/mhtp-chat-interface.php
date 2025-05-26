@@ -23,7 +23,7 @@ define('MHTP_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('MHTP_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MHTP_CHAT_PLUGIN_FILE', __FILE__);
 // Botpress Chat API base URL (no trailing slash)
-define('MHTP_BOTPRESS_CHAT_API', 'https://chat.botpress.cloud');
+define('MHTP_BOTPRESS_CHAT_API', 'https://chat.botpress.cloud/v1');
 
 /*
  * ID of your Botpress Cloud bot. Define in wp-config.php as
@@ -395,7 +395,6 @@ class MHTP_Chat_Interface {
         if (empty(MHTP_BOTPRESS_API_KEY) || empty(MHTP_BOTPRESS_BOT_ID)) {
             return new WP_Error('bp_no_key', 'Botpress API key or bot ID not configured');
         }
-
         $url = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'conversations.getOrCreate';
         $payload = array(
             'botId' => MHTP_BOTPRESS_BOT_ID,
@@ -545,7 +544,6 @@ class MHTP_Chat_Interface {
             error_log('Botpress API key missing');
             return new WP_REST_Response(array('error' => 'Botpress not configured'), 500);
         }
-
         $botpress_url = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'messages';
 
         $payload = array(

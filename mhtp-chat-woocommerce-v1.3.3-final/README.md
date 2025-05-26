@@ -15,13 +15,13 @@ MHTP Chat Interface is a WordPress plugin that provides a chat interface for exp
 - MHTP Test Sessions plugin (optional, for test session management)
 
 ## Migrating from Legacy API
-Previous versions of this plugin used the `/converse` endpoint from Botpress v12. Version 2.x relied on the `/conversations` and `/messages` paths. Version 3.0.0 now uses the official Chat API endpoints `conversations.getOrCreate` and `messages` under `https://chat.botpress.cloud`.
+Previous versions of this plugin used the `/converse` endpoint from Botpress v12. Version 2.x relied on the `/conversations` and `/messages` paths. Version 3.0.0 now uses the official Chat API endpoints `conversations.getOrCreate` and `messages` under `https://chat.botpress.cloud/{bot_id}`.
 
 ## Installation
 1. In Botpress Cloud, enable the **Chat Integration** for your bot and note the API key.
 2. In that same Chat Integration screen set the **Webhook URL** to `https://YOURDOMAIN.com/wp-json/mhtp-chat/webhook` (replace `YOURDOMAIN.com` with your domain).
 3. Define the constant `MHTP_BOTPRESS_API_KEY` in your `wp-config.php` file with the key from step&nbsp;1.
-4. *(Optional)* Define `MHTP_BOTPRESS_CHAT_API` if your Chat API base differs (defaults to `https://chat.botpress.cloud`).
+4. *(Optional)* Define `MHTP_BOTPRESS_CHAT_API` if your Chat API base differs (defaults to `https://chat.botpress.cloud/v1`).
 5. Define `MHTP_BOTPRESS_BOT_ID` with your Botpress bot ID.
 6. Upload the plugin files to `/wp-content/plugins/mhtp-chat-woocommerce` or install through the WordPress plugins screen.
 7. Activate the plugin through the 'Plugins' menu.
