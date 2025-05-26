@@ -19,10 +19,11 @@ Previous versions of this plugin used the `/converse` endpoint from Botpress v12
 
 ## Installation
 1. In Botpress Cloud, enable the **Chat Integration** for your bot and note the API key.
-2. Define the constant `MHTP_BOTPRESS_API_KEY` in your `wp-config.php` file with the key from step 1.
-3. Upload the plugin files to `/wp-content/plugins/mhtp-chat-woocommerce` or install through the WordPress plugins screen.
-4. Activate the plugin through the 'Plugins' menu.
-5. Use the shortcode `[mhtp_chat_interface]` (or `[mhtp_chat]`) on any page.
+2. In that same Chat Integration screen set the **Webhook URL** to `https://YOURDOMAIN.com/wp-json/mhtp-chat/v1/webhook` (replace `YOURDOMAIN.com` with your domain).
+3. Define the constant `MHTP_BOTPRESS_API_KEY` in your `wp-config.php` file with the key from step&nbsp;1.
+4. Upload the plugin files to `/wp-content/plugins/mhtp-chat-woocommerce` or install through the WordPress plugins screen.
+5. Activate the plugin through the 'Plugins' menu.
+6. Use the shortcode `[mhtp_chat_interface]` (or `[mhtp_chat]`) on any page.
 
 The plugin communicates with Botpress using the Chat API at `https://chat.botpress.cloud/v1`. A user and conversation are created automatically when a chat session starts.
 
@@ -127,6 +128,13 @@ fetch(mhtpChatConfig.rest_url, {
   .then(r => r.json())
   .then(d => console.log('Bot response:', d.text));
 ```
+
+## Testing the Webhook
+1. Confirm your Botpress Chat integration's **Webhook URL** is set to `https://YOURDOMAIN.com/wp-json/mhtp-chat/v1/webhook` and the plugin is active.
+2. Open a page containing the `[mhtp_chat_interface]` shortcode and start a chat session.
+3. Send a message to the bot and wait for the reply.
+4. The webhook stores the most recent bot message in the user meta field `mhtp_last_bot_reply`.
+5. You can verify this value using the WordPress admin or `get_user_meta( get_current_user_id(), 'mhtp_last_bot_reply', true )`.
 
 ## Security & Rate Limits
 Keep your Botpress API key secret. Define `MHTP_BOTPRESS_API_KEY` in `wp-config.php` outside your web root. The Chat API enforces rate limits, so avoid unnecessary requests and handle errors gracefully.
