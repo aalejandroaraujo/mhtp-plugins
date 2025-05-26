@@ -34,6 +34,15 @@ if (!defined('MHTP_BOTPRESS_API_KEY')) {
     define('MHTP_BOTPRESS_API_KEY', '');
 }
 
+/*
+ * Optional secret to validate incoming webhook requests from Botpress.
+ * Set this constant in wp-config.php and configure the Botpress webhook
+ * to send an Authorization header of the form "Bearer <secret>".
+ */
+if (!defined('MHTP_BOTPRESS_WEBHOOK_SECRET')) {
+    define('MHTP_BOTPRESS_WEBHOOK_SECRET', '');
+}
+
 /**
  * Main plugin class
  */
@@ -466,6 +475,13 @@ class MHTP_Chat_Interface {
      * @return WP_REST_Response
      */
     public function rest_webhook_handler(WP_REST_Request $request) {
+        $auth_header = $request->get_header('Authorization');
+        $expected    = 'Bearer ' . MHTP_BOTPRESS_WEBHOOK_SECRET;
+        if ($auth_header !== $expected) {
+            error_log('Webhook authorization failed: ' . $auth_header);
+            return new WP_REST_Response(null, 401);
+        }
+
         $payload = $request->get_json_params();
         error_log('Botpress webhook received: ' . wp_json_encode($payload));
 

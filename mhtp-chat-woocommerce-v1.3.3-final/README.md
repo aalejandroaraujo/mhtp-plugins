@@ -22,6 +22,7 @@ Previous versions of this plugin used the `/converse` endpoint from Botpress v12
 2. In that same Chat Integration screen set the **Webhook URL** to `https://YOURDOMAIN.com/wp-json/mhtp-chat/v1/webhook` (replace `YOURDOMAIN.com` with your domain).
 3. Define the constant `MHTP_BOTPRESS_API_KEY` in your `wp-config.php` file with the key from step&nbsp;1.
 4. *(Optional)* Define `MHTP_BOTPRESS_CHAT_API` if your Chat API base differs or includes your bot ID (e.g. `https://bots.botpress.cloud/api/v1/bots/YOUR_BOT_ID`).
+
 5. Upload the plugin files to `/wp-content/plugins/mhtp-chat-woocommerce` or install through the WordPress plugins screen.
 6. Activate the plugin through the 'Plugins' menu.
 7. Use the shortcode `[mhtp_chat_interface]` (or `[mhtp_chat]`) on any page.
@@ -137,4 +138,4 @@ fetch(mhtpChatConfig.rest_url, {
 5. You can verify this value using the WordPress admin or `get_user_meta( get_current_user_id(), 'mhtp_last_bot_reply', true )`.
 
 ## Security & Rate Limits
-Keep your Botpress API key secret. Define `MHTP_BOTPRESS_API_KEY` in `wp-config.php` outside your web root. The Chat API enforces rate limits, so avoid unnecessary requests and handle errors gracefully.
+Keep your Botpress API key secret. Define `MHTP_BOTPRESS_API_KEY` in `wp-config.php` outside your web root. If you set `MHTP_BOTPRESS_WEBHOOK_SECRET`, Botpress must include `Authorization: Bearer <secret>` when calling the webhook. The Chat API enforces rate limits, so avoid unnecessary requests and handle errors gracefully.
