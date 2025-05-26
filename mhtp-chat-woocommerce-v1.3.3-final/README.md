@@ -21,11 +21,12 @@ Previous versions of this plugin used the `/converse` endpoint from Botpress v12
 1. In Botpress Cloud, enable the **Chat Integration** for your bot and note the API key.
 2. In that same Chat Integration screen set the **Webhook URL** to `https://YOURDOMAIN.com/wp-json/mhtp-chat/v1/webhook` (replace `YOURDOMAIN.com` with your domain).
 3. Define the constant `MHTP_BOTPRESS_API_KEY` in your `wp-config.php` file with the key from step&nbsp;1.
-4. Upload the plugin files to `/wp-content/plugins/mhtp-chat-woocommerce` or install through the WordPress plugins screen.
-5. Activate the plugin through the 'Plugins' menu.
-6. Use the shortcode `[mhtp_chat_interface]` (or `[mhtp_chat]`) on any page.
+4. *(Optional)* Define `MHTP_BOTPRESS_CHAT_API` if your Chat API base differs or includes your bot ID (e.g. `https://bots.botpress.cloud/api/v1/bots/YOUR_BOT_ID`).
+5. Upload the plugin files to `/wp-content/plugins/mhtp-chat-woocommerce` or install through the WordPress plugins screen.
+6. Activate the plugin through the 'Plugins' menu.
+7. Use the shortcode `[mhtp_chat_interface]` (or `[mhtp_chat]`) on any page.
 
-The plugin communicates with Botpress using the Chat API at `https://chat.botpress.cloud/v1`. A user and conversation are created automatically when a chat session starts.
+The plugin communicates with Botpress using the base defined in `MHTP_BOTPRESS_CHAT_API`. This defaults to `https://chat.botpress.cloud/v1`, but some installations require the bot ID in the path. A user and conversation are created automatically when a chat session starts.
 
 
 ## Usage
@@ -70,7 +71,7 @@ This plugin now properly handles session decrementation when users start a chat:
 
 ### 1.4.0
 - Switched to the Botpress Cloud programmatic API with support for API keys (legacy approach).
-- Added new constants `MHTP_BOTPRESS_API_URL` and `MHTP_BOTPRESS_API_KEY`.
+- Added new constants `MHTP_BOTPRESS_CHAT_API` and `MHTP_BOTPRESS_API_KEY`.
 - REST proxy now logs unexpected HTTP status codes with full Botpress response.
 - Requests were sent to `/converse/<WP user ID>` for conversation context.
 
@@ -95,8 +96,7 @@ This plugin now properly handles session decrementation when users start a chat:
 - Fixed expert list rendering by restoring original data passing mechanism
 - Restored original plugin structure for better compatibility
 
-### 1.3.3
-- Botpress URL now read from `MHTP_BOTPRESS_API_URL` constant pointing to your Botpress Cloud API.
+- Chat API base now read from `MHTP_BOTPRESS_CHAT_API` constant pointing to your Botpress Cloud API.
 - Expose REST endpoint URL and nonce via `mhtpChatConfig` in the PHP registration routine.
 - Secure route with WP nonce permission callback.
 - sendMessage() now POSTs to the localized REST endpoint with fetch() and handles JSON reply.
