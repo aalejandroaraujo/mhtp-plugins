@@ -15,20 +15,20 @@ MHTP Chat Interface is a WordPress plugin that provides a chat interface for exp
 - MHTP Test Sessions plugin (optional, for test session management)
 
 ## Migrating from Legacy API
-Previous versions of this plugin used the `/converse` endpoint from Botpress v12. That endpoint no longer works on Botpress Cloud and will return 404 errors. Version 2.0.0 switched to the Chat API. Messages are now sent to the `/events` endpoint. Ensure the Chat Integration is enabled on your bot and update your API key before upgrading.
+Previous versions of this plugin used the `/converse` endpoint from Botpress v12. That endpoint no longer works on Botpress Cloud. Version 2.0.0 migrated to the Chat API using the `/events` path. The latest version uses the Botpress Cloud Chat API under `https://chat.botpress.cloud/{bot_id}`.
 
 ## Installation
 1. In Botpress Cloud, enable the **Chat Integration** for your bot and note the API key.
 2. In that same Chat Integration screen set the **Webhook URL** to `https://YOURDOMAIN.com/wp-json/mhtp-chat/v1/webhook` (replace `YOURDOMAIN.com` with your domain).
 3. Define the constant `MHTP_BOTPRESS_API_KEY` in your `wp-config.php` file with the key from step&nbsp;1.
-4. *(Optional)* Define `MHTP_BOTPRESS_CHAT_API` if your Chat API base differs or includes your bot ID (e.g. `https://bots.botpress.cloud/api/v1/bots/YOUR_BOT_ID`).
+4. *(Optional)* Define `MHTP_BOTPRESS_CHAT_API` if your Chat API base differs (defaults to `https://chat.botpress.cloud`).
+5. Define `MHTP_BOTPRESS_BOT_ID` with your Botpress bot ID.
+6. All Botpress requests must include an `x-user-key` header. The plugin automatically sends this header using the logged in WordPress user ID (`wp-{user_id}`).
+7. Upload the plugin files to `/wp-content/plugins/mhtp-chat-woocommerce` or install through the WordPress plugins screen.
+8. Activate the plugin through the 'Plugins' menu.
+9. Use the shortcode `[mhtp_chat_interface]` (or `[mhtp_chat]`) on any page.
 
-5. All Botpress requests must include an `x-user-key` header. The plugin automatically sends this header using the logged in WordPress user ID (`wp-{user_id}`).
-6. Upload the plugin files to `/wp-content/plugins/mhtp-chat-woocommerce` or install through the WordPress plugins screen.
-7. Activate the plugin through the 'Plugins' menu.
-8. Use the shortcode `[mhtp_chat_interface]` (or `[mhtp_chat]`) on any page.
-
-The plugin communicates with Botpress using the base defined in `MHTP_BOTPRESS_CHAT_API`. This defaults to `https://chat.botpress.cloud/v1`, but some installations require the bot ID in the path. A user is created the first time they start chatting and the initial message is sent to the `/events` endpoint, which also creates a conversation automatically.
+The plugin communicates with Botpress using the base defined in `MHTP_BOTPRESS_CHAT_API` and your bot ID from `MHTP_BOTPRESS_BOT_ID`. Conversations start by POSTing to `https://chat.botpress.cloud/{bot_id}/conversations` and subsequent messages are sent to `.../conversations/{conversationId}/messages`.
 
 
 ## Usage
@@ -42,7 +42,7 @@ You can specify an expert ID directly:
 ### AJAX Handlers
 The plugin registers the actions `wp_ajax_mhtp_start_chat_session` and
 `wp_ajax_nopriv_mhtp_start_chat_session`. These handlers initialize the Botpress
-user and send an initial request to the `/events` endpoint so Botpress can
+user and send an initial request to the `/conversations` endpoint so Botpress can
 create a conversation. If these hooks are missing, every AJAX request will
 return an empty response and the front end will display "Failed to prepare chat
 user".
@@ -69,7 +69,7 @@ This plugin now properly handles session decrementation when users start a chat:
 ### 2.0.2
 - Added `x-user-key` header to all Botpress API requests using `wp-{user_id}` so requests comply with Botpress Cloud requirements.
 ### 2.0.0
-- Migrated to Botpress **Chat API** at `https://chat.botpress.cloud/v1`.
+- Migrated to Botpress **Chat API** at `https://chat.botpress.cloud/{bot_id}`.
 - Users are created automatically and conversations start when the first event is sent.
 - New optional webhook endpoint `/mhtp-chat/v1/webhook` for asynchronous events.
 - API key is now read from `MHTP_BOTPRESS_API_KEY` defined in `wp-config.php`.
