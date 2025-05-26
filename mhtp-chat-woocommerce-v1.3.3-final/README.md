@@ -19,7 +19,7 @@ Previous versions of this plugin used the `/converse` endpoint from Botpress v12
 
 ## Installation
 1. In Botpress Cloud, enable the **Chat Integration** for your bot and note the API key.
-2. In that same Chat Integration screen set the **Webhook URL** to `https://YOURDOMAIN.com/wp-json/mhtp-chat/v1/webhook` (replace `YOURDOMAIN.com` with your domain).
+2. In that same Chat Integration screen set the **Webhook URL** to `https://YOURDOMAIN.com/wp-json/mhtp-chat/webhook` (replace `YOURDOMAIN.com` with your domain).
 3. Define the constant `MHTP_BOTPRESS_API_KEY` in your `wp-config.php` file with the key from step&nbsp;1.
 4. *(Optional)* Define `MHTP_BOTPRESS_CHAT_API` if your Chat API base differs (defaults to `https://chat.botpress.cloud/v1`).
 5. Define `MHTP_BOTPRESS_BOT_ID` with your Botpress bot ID.
@@ -49,7 +49,7 @@ The front-end script sends messages via `fetch` to the localized REST
 endpoint. Ensure `mhtpChatConfig.rest_url` and `mhtpChatConfig.nonce` are
 printed by `wp_localize_script`.
 
-> **Note** Some security plugins or hosting providers may block requests to custom REST endpoints like `/mhtp-chat/v1/message`. If message sending fails, check your host or plugin settings.
+> **Note** Some security plugins or hosting providers may block requests to custom REST endpoints like `/mhtp-chat/message`. If message sending fails, check your host or plugin settings.
 
 ## Session Management
 This plugin now properly handles session decrementation when users start a chat:
@@ -73,7 +73,7 @@ This plugin now properly handles session decrementation when users start a chat:
 ### 2.0.0
 - Migrated to Botpress **Chat API** at `https://chat.botpress.cloud/{bot_id}`.
 - Users are created automatically and conversations start when the first event is sent.
-- New optional webhook endpoint `/mhtp-chat/v1/webhook` for asynchronous events.
+ - New optional webhook endpoint `/mhtp-chat/webhook` for asynchronous events.
 - API key is now read from `MHTP_BOTPRESS_API_KEY` defined in `wp-config.php`.
 
 ### 1.4.0
@@ -137,7 +137,7 @@ fetch(mhtpChatConfig.rest_url, {
 ```
 
 ## Testing the Webhook
-1. Confirm your Botpress Chat integration's **Webhook URL** is set to `https://YOURDOMAIN.com/wp-json/mhtp-chat/v1/webhook` and the plugin is active.
+1. Confirm your Botpress Chat integration's **Webhook URL** is set to `https://YOURDOMAIN.com/wp-json/mhtp-chat/webhook` and the plugin is active.
 2. Open a page containing the `[mhtp_chat_interface]` shortcode and start a chat session.
 3. Send a message to the bot and wait for the reply.
 4. The webhook stores the most recent bot message in the user meta field `mhtp_last_bot_reply`.

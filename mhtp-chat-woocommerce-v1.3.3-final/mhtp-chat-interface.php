@@ -142,7 +142,7 @@ class MHTP_Chat_Interface {
             'mhtp-chat-interface',
             'mhtpChatConfig',
             array(
-                'rest_url' => rest_url('mhtp-chat/v1/message'),
+                'rest_url' => rest_url('mhtp-chat/message'),
                 'nonce'    => wp_create_nonce('wp_rest')
             )
         );
@@ -395,10 +395,10 @@ class MHTP_Chat_Interface {
         if (empty(MHTP_BOTPRESS_API_KEY) || empty(MHTP_BOTPRESS_BOT_ID)) {
             return new WP_Error('bp_no_key', 'Botpress API key or bot ID not configured');
         }
-        $base    = trailingslashit(MHTP_BOTPRESS_CHAT_API) . trim(MHTP_BOTPRESS_BOT_ID, '/') . '/';
-        $url     = $base . 'conversations.getOrCreate';
+        $url = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'conversations.getOrCreate';
         $payload = array(
-            'user' => array('id' => 'wpuser-' . $wp_user_id),
+            'botId' => MHTP_BOTPRESS_BOT_ID,
+            'user'  => array('id' => 'wpuser-' . $wp_user_id),
         );
 
         $response = wp_remote_post(
@@ -488,7 +488,7 @@ class MHTP_Chat_Interface {
     public function register_rest_routes() {
         error_log('MHTP Chat Interface → register_rest_routes() invoked');
         register_rest_route(
-            'mhtp-chat/v1',
+            'mhtp-chat',
             '/message',
             array(
                 'methods'             => 'POST',
@@ -508,7 +508,7 @@ class MHTP_Chat_Interface {
 
         // Optional endpoint to receive Botpress webhook calls
         register_rest_route(
-            'mhtp-chat/v1',
+            'mhtp-chat',
             '/webhook',
             array(
                 'methods'             => 'POST',
@@ -544,10 +544,10 @@ class MHTP_Chat_Interface {
             error_log('Botpress API key missing');
             return new WP_REST_Response(array('error' => 'Botpress not configured'), 500);
         }
-        $base        = trailingslashit(MHTP_BOTPRESS_CHAT_API) . trim(MHTP_BOTPRESS_BOT_ID, '/') . '/';
-        $botpress_url = $base . 'messages';
+        $botpress_url = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'messages';
 
         $payload = array(
+            'botId'         => MHTP_BOTPRESS_BOT_ID,
             'conversationId' => $conversation_id,
             'type'          => 'text',
             'text'          => $message,
@@ -581,8 +581,9 @@ class MHTP_Chat_Interface {
         $messages_url = add_query_arg(
             array(
                 'conversationId' => $conversation_id,
+                'botId'          => MHTP_BOTPRESS_BOT_ID,
             ),
-            $base . 'messages'
+            trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'messages'
         );
 
         $get_resp = wp_remote_get(
