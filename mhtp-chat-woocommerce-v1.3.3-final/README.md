@@ -15,7 +15,7 @@ MHTP Chat Interface is a WordPress plugin that provides a chat interface for exp
 - MHTP Test Sessions plugin (optional, for test session management)
 
 ## Migrating from Legacy API
-Previous versions of this plugin used the `/converse` endpoint from Botpress v12. That endpoint no longer works on Botpress Cloud and will return 404 errors. Version 2.0.0 now uses the Chat API. Ensure the Chat Integration is enabled on your bot and update your API key before upgrading.
+Previous versions of this plugin used the `/converse` endpoint from Botpress v12. That endpoint no longer works on Botpress Cloud and will return 404 errors. Version 2.0.0 switched to the Chat API. Messages are now sent to the `/events` endpoint. Ensure the Chat Integration is enabled on your bot and update your API key before upgrading.
 
 ## Installation
 1. In Botpress Cloud, enable the **Chat Integration** for your bot and note the API key.
@@ -27,7 +27,7 @@ Previous versions of this plugin used the `/converse` endpoint from Botpress v12
 6. Activate the plugin through the 'Plugins' menu.
 7. Use the shortcode `[mhtp_chat_interface]` (or `[mhtp_chat]`) on any page.
 
-The plugin communicates with Botpress using the base defined in `MHTP_BOTPRESS_CHAT_API`. This defaults to `https://chat.botpress.cloud/v1`, but some installations require the bot ID in the path. A user and conversation are created automatically when a chat session starts.
+The plugin communicates with Botpress using the base defined in `MHTP_BOTPRESS_CHAT_API`. This defaults to `https://chat.botpress.cloud/v1`, but some installations require the bot ID in the path. A user is created the first time they start chatting and the initial message is sent to the `/events` endpoint, which also creates a conversation automatically.
 
 
 ## Usage
@@ -40,10 +40,11 @@ You can specify an expert ID directly:
 
 ### AJAX Handlers
 The plugin registers the actions `wp_ajax_mhtp_start_chat_session` and
-`wp_ajax_nopriv_mhtp_start_chat_session`. These handlers create the Botpress
-conversation when the chat UI loads. If they are missing, every AJAX request
-will return an empty response and the front end will display "Failed to prepare
-chat user".
+`wp_ajax_nopriv_mhtp_start_chat_session`. These handlers initialize the Botpress
+user and send an initial request to the `/events` endpoint so Botpress can
+create a conversation. If these hooks are missing, every AJAX request will
+return an empty response and the front end will display "Failed to prepare chat
+user".
 
 The front-end script sends messages via `fetch` to the localized REST
 endpoint. Ensure `mhtpChatConfig.rest_url` and `mhtpChatConfig.nonce` are
@@ -66,7 +67,7 @@ This plugin now properly handles session decrementation when users start a chat:
   users. The lack of these hooks previously caused chat initialization failures.
 ### 2.0.0
 - Migrated to Botpress **Chat API** at `https://chat.botpress.cloud/v1`.
-- Users and conversations are created automatically when a session begins.
+- Users are created automatically and conversations start when the first event is sent.
 - New optional webhook endpoint `/mhtp-chat/v1/webhook` for asynchronous events.
 - API key is now read from `MHTP_BOTPRESS_API_KEY` defined in `wp-config.php`.
 
