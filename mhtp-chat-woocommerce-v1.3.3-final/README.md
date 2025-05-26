@@ -1,4 +1,4 @@
-# MHTP Chat Interface - Version 2.0.2
+# MHTP Chat Interface - Version 3.0.0
 
 ## Description
 MHTP Chat Interface is a WordPress plugin that provides a chat interface for experts with WooCommerce integration. This plugin allows users to chat with experts who are set up as WooCommerce products.
@@ -15,20 +15,19 @@ MHTP Chat Interface is a WordPress plugin that provides a chat interface for exp
 - MHTP Test Sessions plugin (optional, for test session management)
 
 ## Migrating from Legacy API
-Previous versions of this plugin used the `/converse` endpoint from Botpress v12. That endpoint no longer works on Botpress Cloud. Version 2.0.0 migrated to the Chat API using the `/events` path. The latest version uses the Botpress Cloud Chat API under `https://chat.botpress.cloud/{bot_id}`.
+Previous versions of this plugin used the `/converse` endpoint from Botpress v12. Version 2.x relied on the `/conversations` and `/messages` paths. Version 3.0.0 now uses the official Chat API endpoints `conversations.getOrCreate` and `messages` under `https://chat.botpress.cloud`.
 
 ## Installation
 1. In Botpress Cloud, enable the **Chat Integration** for your bot and note the API key.
-2. In that same Chat Integration screen set the **Webhook URL** to `https://YOURDOMAIN.com/wp-json/mhtp-chat/v1/webhook` (replace `YOURDOMAIN.com` with your domain).
+2. In that same Chat Integration screen set the **Webhook URL** to `https://YOURDOMAIN.com/wp-json/mhtp-chat/webhook` (replace `YOURDOMAIN.com` with your domain).
 3. Define the constant `MHTP_BOTPRESS_API_KEY` in your `wp-config.php` file with the key from step&nbsp;1.
 4. *(Optional)* Define `MHTP_BOTPRESS_CHAT_API` if your Chat API base differs (defaults to `https://chat.botpress.cloud`).
 5. Define `MHTP_BOTPRESS_BOT_ID` with your Botpress bot ID.
-6. All Botpress requests must include an `x-user-key` header. The plugin automatically sends this header using the logged in WordPress user ID (`wp-{user_id}`).
-7. Upload the plugin files to `/wp-content/plugins/mhtp-chat-woocommerce` or install through the WordPress plugins screen.
-8. Activate the plugin through the 'Plugins' menu.
-9. Use the shortcode `[mhtp_chat_interface]` (or `[mhtp_chat]`) on any page.
+6. Upload the plugin files to `/wp-content/plugins/mhtp-chat-woocommerce` or install through the WordPress plugins screen.
+7. Activate the plugin through the 'Plugins' menu.
+8. Use the shortcode `[mhtp_chat_interface]` (or `[mhtp_chat]`) on any page.
 
-The plugin communicates with Botpress using the base defined in `MHTP_BOTPRESS_CHAT_API` and your bot ID from `MHTP_BOTPRESS_BOT_ID`. Conversations start by POSTing to `https://chat.botpress.cloud/{bot_id}/conversations` and subsequent messages are sent to `.../conversations/{conversationId}/messages`.
+The plugin communicates with Botpress using the base defined in `MHTP_BOTPRESS_CHAT_API` and your bot ID from `MHTP_BOTPRESS_BOT_ID`. Conversations begin with a POST to `conversations.getOrCreate` and messages are sent via the `messages` endpoint using the conversation ID returned.
 
 
 ## Usage
@@ -41,17 +40,16 @@ You can specify an expert ID directly:
 
 ### AJAX Handlers
 The plugin registers the actions `wp_ajax_mhtp_start_chat_session` and
-`wp_ajax_nopriv_mhtp_start_chat_session`. These handlers initialize the Botpress
-user and send an initial request to the `/conversations` endpoint so Botpress can
-create a conversation. If these hooks are missing, every AJAX request will
-return an empty response and the front end will display "Failed to prepare chat
-user".
+`wp_ajax_nopriv_mhtp_start_chat_session`. These handlers initialize a Botpress
+conversation via the `conversations.getOrCreate` endpoint. If these hooks are
+missing, every AJAX request will return an error and the front end will display
+"Failed to start conversation".
 
 The front-end script sends messages via `fetch` to the localized REST
 endpoint. Ensure `mhtpChatConfig.rest_url` and `mhtpChatConfig.nonce` are
 printed by `wp_localize_script`.
 
-> **Note** Some security plugins or hosting providers may block requests to custom REST endpoints like `/mhtp-chat/v1/message`. If message sending fails, check your host or plugin settings.
+> **Note** Some security plugins or hosting providers may block requests to custom REST endpoints like `/mhtp-chat/message`. If message sending fails, check your host or plugin settings.
 
 ## Session Management
 This plugin now properly handles session decrementation when users start a chat:
@@ -62,6 +60,10 @@ This plugin now properly handles session decrementation when users start a chat:
 
 ## Changelog
 
+### 3.0.0
+- Switched to Botpress Cloud's official Chat API using `conversations.getOrCreate` and `messages`.
+- Removed the legacy `/conversations` and `/users` calls.
+- Requires defining `MHTP_BOTPRESS_BOT_ID` and `MHTP_BOTPRESS_API_KEY`.
 
 ### 2.0.1
 - Register AJAX handlers for `mhtp_start_chat_session` for logged in and guest
@@ -71,7 +73,7 @@ This plugin now properly handles session decrementation when users start a chat:
 ### 2.0.0
 - Migrated to Botpress **Chat API** at `https://chat.botpress.cloud/{bot_id}`.
 - Users are created automatically and conversations start when the first event is sent.
-- New optional webhook endpoint `/mhtp-chat/v1/webhook` for asynchronous events.
+ - New optional webhook endpoint `/mhtp-chat/webhook` for asynchronous events.
 - API key is now read from `MHTP_BOTPRESS_API_KEY` defined in `wp-config.php`.
 
 ### 1.4.0
@@ -135,7 +137,7 @@ fetch(mhtpChatConfig.rest_url, {
 ```
 
 ## Testing the Webhook
-1. Confirm your Botpress Chat integration's **Webhook URL** is set to `https://YOURDOMAIN.com/wp-json/mhtp-chat/v1/webhook` and the plugin is active.
+1. Confirm your Botpress Chat integration's **Webhook URL** is set to `https://YOURDOMAIN.com/wp-json/mhtp-chat/webhook` and the plugin is active.
 2. Open a page containing the `[mhtp_chat_interface]` shortcode and start a chat session.
 3. Send a message to the bot and wait for the reply.
 4. The webhook stores the most recent bot message in the user meta field `mhtp_last_bot_reply`.
@@ -143,3 +145,8 @@ fetch(mhtpChatConfig.rest_url, {
 
 ## Security & Rate Limits
 Keep your Botpress API key secret. Define `MHTP_BOTPRESS_API_KEY` in `wp-config.php` outside your web root. If you set `MHTP_BOTPRESS_WEBHOOK_SECRET`, Botpress must include `Authorization: Bearer <secret>` when calling the webhook. The Chat API enforces rate limits, so avoid unnecessary requests and handle errors gracefully.
+
+## Troubleshooting
+* **401 Unauthorized** – verify your Botpress PAT is correct and has access to the bot.
+* **404 Not Found** – ensure `MHTP_BOTPRESS_BOT_ID` is valid and matches your bot's ID.
+* **Empty or missing replies** – check that the conversation ID is stored in user meta and that the webhook or polling endpoint is reachable.
