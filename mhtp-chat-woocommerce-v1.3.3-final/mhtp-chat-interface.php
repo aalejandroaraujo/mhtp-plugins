@@ -3,7 +3,7 @@
  * Plugin Name: MHTP Chat Interface
  * Plugin URI: https://mhtp.com
  * Description: Chat interface for Mental Health Triage Platform
- * Version: 1.4.0
+ * Version: 2.0.1
  * Author: MHTP Team
  * Author URI: https://mhtp.com
  * Text Domain: mhtp-chat-interface
@@ -18,18 +18,21 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('MHTP_CHAT_VERSION', '1.4.0');
+define('MHTP_CHAT_VERSION', '2.0.1');
 define('MHTP_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('MHTP_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MHTP_CHAT_PLUGIN_FILE', __FILE__);
-// Botpress identifiers
-define('MHTP_BOTPRESS_BOT_ID', 'e7a32e4e-fb02-4934-b58f-94c0679c30f9');
-define(
-    'MHTP_BOTPRESS_API_URL',
-    'https://api.botpress.cloud/v1/bots/' . MHTP_BOTPRESS_BOT_ID . '/converse/'
-);
-// API key for authenticating with Botpress Cloud
-define('MHTP_BOTPRESS_API_KEY', 'bp_pat_1GA5jZRedOXowriuF3bg4C07q9jgzaPHni8K');
+// Botpress Chat API endpoint
+define('MHTP_BOTPRESS_CHAT_API', 'https://chat.botpress.cloud/v1');
+
+/*
+ * API key for authenticating with Botpress Cloud. For security reasons you
+ * should define this constant in wp-config.php and never commit your real key
+ * to version control.
+ */
+if (!defined('MHTP_BOTPRESS_API_KEY')) {
+    define('MHTP_BOTPRESS_API_KEY', '');
+}
 
 /**
  * Main plugin class
@@ -52,7 +55,9 @@ class MHTP_Chat_Interface {
         // Register scripts and styles
         add_action('wp_enqueue_scripts', array($this, 'register_scripts'));
         
-        // Register AJAX handlers
+        // Register AJAX handlers used by the front‑end script. These must be
+        // available to both authenticated and guest users or chat will fail
+        // to initialize.
         add_action('wp_ajax_mhtp_start_chat_session', array($this, 'ajax_start_chat_session'));
         add_action('wp_ajax_nopriv_mhtp_start_chat_session', array($this, 'ajax_start_chat_session'));
 
@@ -265,7 +270,9 @@ class MHTP_Chat_Interface {
     }
     
     /**
-     * AJAX handler for starting a chat session
+     * AJAX handler for starting a chat session. This is triggered by the
+     * JavaScript front end via admin-ajax.php and must always return a JSON
+     * payload so the browser can react accordingly.
      */
     public function ajax_start_chat_session() {
         // Check nonce
@@ -289,13 +296,29 @@ class MHTP_Chat_Interface {
         // Deduct session
         $result = $this->deduct_user_session($user_id, $expert_id);
         
-        if ($result) {
-            // Session deducted successfully
-            wp_send_json_success(array('message' => 'Session started successfully'));
-        } else {
-            // Failed to deduct session
+        if (!$result) {
             wp_send_json_error(array('message' => 'No available sessions'));
+            return;
         }
+
+        // Prepare Botpress user and conversation
+        $bp_user_id = $this->create_botpress_user($user_id);
+        if (is_wp_error($bp_user_id)) {
+            wp_send_json_error(array('message' => 'Failed to prepare chat user'));
+            return;
+        }
+
+        $conversation_id = $this->create_botpress_conversation($bp_user_id);
+        if (is_wp_error($conversation_id)) {
+            wp_send_json_error(array('message' => 'Failed to start conversation'));
+            return;
+        }
+
+        // Persist conversation for future messages
+        update_user_meta($user_id, 'mhtp_bp_conversation_id', $conversation_id);
+        update_user_meta($user_id, 'mhtp_bp_user_id', $bp_user_id);
+
+        wp_send_json_success(array('message' => 'Session started successfully'));
     }
     
     /**
@@ -351,6 +374,98 @@ class MHTP_Chat_Interface {
     }
 
     /**
+     * Create or reuse a Botpress user for the given WordPress user.
+     *
+     * @param int $wp_user_id WordPress user ID.
+     * @return string|WP_Error Botpress user ID on success or WP_Error on failure.
+     */
+    private function create_botpress_user($wp_user_id) {
+        if (empty(MHTP_BOTPRESS_API_KEY)) {
+            return new WP_Error('bp_no_key', 'Botpress API key not configured');
+        }
+
+        $bp_user_id = 'wp-' . $wp_user_id;
+
+        $url = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'users';
+        $response = wp_remote_post(
+            $url,
+            array(
+                'headers' => array(
+                    'Content-Type'  => 'application/json',
+                    'Authorization' => 'Bearer ' . MHTP_BOTPRESS_API_KEY,
+                ),
+                'body'    => wp_json_encode(array('id' => $bp_user_id)),
+                'timeout' => 15,
+            )
+        );
+
+        if (is_wp_error($response)) {
+            error_log('Botpress user creation failed: ' . $response->get_error_message());
+            return $response;
+        }
+
+        $code = wp_remote_retrieve_response_code($response);
+        if ($code !== 201 && $code !== 200 && $code !== 409) {
+            error_log('Unexpected status creating user: ' . $code);
+            return new WP_Error('bp_user_failed', 'Unexpected status from Botpress');
+        }
+
+        return $bp_user_id;
+    }
+
+    /**
+     * Create a conversation for the Botpress user.
+     *
+     * @param string $bp_user_id Botpress user ID.
+     * @return string|WP_Error Conversation ID or error.
+     */
+    private function create_botpress_conversation($bp_user_id) {
+        if (empty(MHTP_BOTPRESS_API_KEY)) {
+            return new WP_Error('bp_no_key', 'Botpress API key not configured');
+        }
+
+        $conversation_id = uniqid('conv-');
+        $url = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'users/' . rawurlencode($bp_user_id) . '/conversations';
+
+        $response = wp_remote_post(
+            $url,
+            array(
+                'headers' => array(
+                    'Content-Type'  => 'application/json',
+                    'Authorization' => 'Bearer ' . MHTP_BOTPRESS_API_KEY,
+                ),
+                'body'    => wp_json_encode(array('id' => $conversation_id)),
+                'timeout' => 15,
+            )
+        );
+
+        if (is_wp_error($response)) {
+            error_log('Botpress conversation creation failed: ' . $response->get_error_message());
+            return $response;
+        }
+
+        $code = wp_remote_retrieve_response_code($response);
+        if ($code !== 201 && $code !== 200 && $code !== 409) {
+            error_log('Unexpected status creating conversation: ' . $code);
+            return new WP_Error('bp_conversation_failed', 'Unexpected status from Botpress');
+        }
+
+        return $conversation_id;
+    }
+
+    /**
+     * Handle webhook callbacks from Botpress (optional).
+     *
+     * @param WP_REST_Request $request Incoming request.
+     * @return WP_REST_Response
+     */
+    public function rest_webhook_handler(WP_REST_Request $request) {
+        $payload = $request->get_json_params();
+        error_log('Botpress webhook received: ' . wp_json_encode($payload));
+        return new WP_REST_Response(array('received' => true));
+    }
+
+    /**
      * Register REST routes.
      */
     public function register_rest_routes() {
@@ -373,6 +488,17 @@ class MHTP_Chat_Interface {
                 ),
             )
         );
+
+        // Optional endpoint to receive Botpress webhook calls
+        register_rest_route(
+            'mhtp-chat/v1',
+            '/webhook',
+            array(
+                'methods'             => 'POST',
+                'callback'            => array($this, 'rest_webhook_handler'),
+                'permission_callback' => '__return_true',
+            )
+        );
     }
 
     /**
@@ -386,10 +512,20 @@ class MHTP_Chat_Interface {
         error_log('→ rest_proxy_message payload=' . print_r($request->get_params(), true));
         $message = $request->get_param('message');
 
-        // Forward the message to Botpress and ensure we always
-        // return a valid WP_REST_Response for the frontend.
+        $bp_user_id       = get_user_meta(get_current_user_id(), 'mhtp_bp_user_id', true);
+        $conversation_id  = get_user_meta(get_current_user_id(), 'mhtp_bp_conversation_id', true);
 
-        $botpress_url = MHTP_BOTPRESS_API_URL . get_current_user_id();
+        if (!$bp_user_id || !$conversation_id) {
+            error_log('Conversation not initialized');
+            return new WP_REST_Response(array('error' => 'Conversation not initialized'), 400);
+        }
+
+        if (empty(MHTP_BOTPRESS_API_KEY)) {
+            error_log('Botpress API key missing');
+            return new WP_REST_Response(array('error' => 'Botpress not configured'), 500);
+        }
+
+        $botpress_url = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'users/' . rawurlencode($bp_user_id) . '/conversations/' . rawurlencode($conversation_id) . '/messages';
 
         $response = wp_remote_post(
             $botpress_url,
@@ -433,7 +569,13 @@ class MHTP_Chat_Interface {
             return new WP_REST_Response(array('error' => 'Invalid response from Botpress'), 502);
         }
 
-        return new WP_REST_Response($decoded, $code);
+        // Extract first bot message if available
+        $reply = '';
+        if (isset($decoded['messages'][0]['payload']['text'])) {
+            $reply = $decoded['messages'][0]['payload']['text'];
+        }
+
+        return new WP_REST_Response(array('text' => $reply), $code);
     }
     
     /**
