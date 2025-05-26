@@ -3,7 +3,7 @@
  * Plugin Name: MHTP Chat Interface
  * Plugin URI: https://mhtp.com
  * Description: Chat interface for Mental Health Triage Platform
- * Version: 2.0.1
+ * Version: 2.0.2
  * Author: MHTP Team
  * Author URI: https://mhtp.com
  * Text Domain: mhtp-chat-interface
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('MHTP_CHAT_VERSION', '2.0.1');
+define('MHTP_CHAT_VERSION', '2.0.2');
 define('MHTP_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('MHTP_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MHTP_CHAT_PLUGIN_FILE', __FILE__);
@@ -404,6 +404,7 @@ class MHTP_Chat_Interface {
             'headers' => array(
                 'Content-Type'  => 'application/json',
                 'Authorization' => 'Bearer ' . MHTP_BOTPRESS_API_KEY,
+                'x-user-key'   => $bp_user_id,
             ),
             'body'    => wp_json_encode(array('id' => $bp_user_id)),
             'timeout' => 15,
@@ -449,6 +450,7 @@ class MHTP_Chat_Interface {
             'headers' => array(
                 'Content-Type'  => 'application/json',
                 'Authorization' => 'Bearer ' . MHTP_BOTPRESS_API_KEY,
+                'x-user-key'   => $bp_user_id,
             ),
             'body'    => wp_json_encode($payload),
             'timeout' => 15,
@@ -609,6 +611,7 @@ class MHTP_Chat_Interface {
                 'headers' => array(
                     'Content-Type'  => 'application/json',
                     'Authorization' => 'Bearer ' . MHTP_BOTPRESS_API_KEY,
+                    'x-user-key'   => $bp_user_id,
                 ),
                 'body'    => wp_json_encode($payload),
                 'timeout' => 15,
