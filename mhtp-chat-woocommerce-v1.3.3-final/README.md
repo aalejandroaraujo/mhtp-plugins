@@ -15,7 +15,7 @@ MHTP Chat Interface is a WordPress plugin that provides a chat interface for exp
 - MHTP Test Sessions plugin (optional, for test session management)
 
 ## Migrating from Legacy API
-Previous versions of this plugin used the `/converse` endpoint from Botpress v12. Version 2.x relied on the `/conversations` and `/messages` paths. Version 3.0.0 now uses the official Chat API endpoints `conversations.getOrCreate` and `messages` under `https://chat.botpress.cloud/v1`.
+Previous versions of this plugin used the `/converse` endpoint from Botpress v12. Version 2.x relied on the `/conversations` and `/messages` paths. Version 3.0.0 now uses the official Chat API endpoints `conversations.getOrCreate` and `messages` under `https://chat.botpress.cloud/{bot_id}`.
 
 ## Installation
 1. In Botpress Cloud, enable the **Chat Integration** for your bot and note the API key.

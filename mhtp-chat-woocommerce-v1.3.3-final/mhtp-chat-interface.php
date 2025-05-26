@@ -395,11 +395,10 @@ class MHTP_Chat_Interface {
         if (empty(MHTP_BOTPRESS_API_KEY) || empty(MHTP_BOTPRESS_BOT_ID)) {
             return new WP_Error('bp_no_key', 'Botpress API key or bot ID not configured');
         }
-
-        $url = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'conversations.getOrCreate';
+        $base    = trailingslashit(MHTP_BOTPRESS_CHAT_API) . trim(MHTP_BOTPRESS_BOT_ID, '/') . '/';
+        $url     = $base . 'conversations.getOrCreate';
         $payload = array(
-            'botId' => MHTP_BOTPRESS_BOT_ID,
-            'user'  => array('id' => 'wpuser-' . $wp_user_id),
+            'user' => array('id' => 'wpuser-' . $wp_user_id),
         );
 
         $response = wp_remote_post(
@@ -545,11 +544,10 @@ class MHTP_Chat_Interface {
             error_log('Botpress API key missing');
             return new WP_REST_Response(array('error' => 'Botpress not configured'), 500);
         }
-
-        $botpress_url = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'messages';
+        $base        = trailingslashit(MHTP_BOTPRESS_CHAT_API) . trim(MHTP_BOTPRESS_BOT_ID, '/') . '/';
+        $botpress_url = $base . 'messages';
 
         $payload = array(
-            'botId'         => MHTP_BOTPRESS_BOT_ID,
             'conversationId' => $conversation_id,
             'type'          => 'text',
             'text'          => $message,
@@ -583,9 +581,8 @@ class MHTP_Chat_Interface {
         $messages_url = add_query_arg(
             array(
                 'conversationId' => $conversation_id,
-                'botId'          => MHTP_BOTPRESS_BOT_ID,
             ),
-            trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'messages'
+            $base . 'messages'
         );
 
         $get_resp = wp_remote_get(
