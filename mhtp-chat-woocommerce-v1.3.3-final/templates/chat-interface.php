@@ -105,7 +105,32 @@ if (!defined('ABSPATH')) {
             ?>
             <div id="mhtp-session-overlay" class="mhtp-session-overlay" style="display:none;">
                 Tu sesión ha concluido
+            <div class="mhtp-chat-footer">
+                <div class="mhtp-chat-controls">
+                    <button id="mhtp-end-session" class="mhtp-end-session-button">Finalizar sesión</button>
+                    <div id="mhtp-session-timer" class="mhtp-session-timer">45:00</div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Session End Confirmation Modal -->
+<div id="mhtp-end-session-modal" class="mhtp-modal">
+    <div class="mhtp-modal-content">
+        <div class="mhtp-modal-header">
+            <h3>Confirmar finalización</h3>
+        </div>
+        <div class="mhtp-modal-body">
+            <p>¿Estás seguro de que deseas finalizar la sesión de chat?</p>
+            <p>Una vez finalizada, no podrás continuar con esta conversación.</p>
+        </div>
+        <div class="mhtp-modal-footer">
+            <button id="mhtp-cancel-end-session" class="mhtp-button mhtp-button-secondary">Cancelar</button>
+            <button id="mhtp-confirm-end-session" class="mhtp-button mhtp-button-primary">Finalizar sesión</button>
+        </div>
+    </div>
+</div>
+
+<!-- Load jsPDF for PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
