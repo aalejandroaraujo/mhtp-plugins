@@ -164,9 +164,11 @@ class MHTP_Chat_Interface {
                 '</div>';
         }
         
-        // Enqueue styles only (Typebot handles its own scripts)
+        // Enqueue styles and scripts
         wp_enqueue_style('mhtp-chat-interface');
         wp_enqueue_style('mhtp-button-fix');
+        wp_enqueue_script('mhtp-chat-interface');
+        wp_enqueue_script('mhtp-button-fix');
         
         // Start output buffering
         ob_start();
@@ -676,7 +678,8 @@ function mhtp_builtin_typebot_shortcode( $atts ) {
         'typebot'
     );
 
-    $src = 'https://typebot.io/' . $atts['typebot'];
+    $base = apply_filters( 'mhtp_typebot_embed_base', 'https://embed.typebot.io/' );
+    $src  = trailingslashit( $base ) . $atts['typebot'];
     if ( ! empty( $atts['url_params'] ) ) {
         $src .= '?' . ltrim( $atts['url_params'], '?' );
     }
