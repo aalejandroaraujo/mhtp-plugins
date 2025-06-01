@@ -1,14 +1,4 @@
 # MHTP Typebot Chat
-
-This plugin provides a minimal shortcode wrapper around the
-[Typebot](https://typebot.io) WordPress plugin. It replaces the previous
-Botpress-based chat interface.
-
-## Shortcode
-
-Use `[mhtp_chat]` to embed the Typebot conversation. Optional parameters can
-be passed and will be forwarded as URL parameters to Typebot:
-
 ```
 [mhtp_chat expert_name="Lucia" topic="Anxiety" is_client="1"]
 ```
@@ -16,6 +6,11 @@ be passed and will be forwarded as URL parameters to Typebot:
 These values become available to your Typebot flow via the variables
 `expertName`, `topic` and `isClient`.
 
+The shortcode renders an `<iframe>` pointing to your Typebot with any
+parameters appended to the query string. If the legacy plugin
+`mhtp-chat-woocommerce-v1.3.3-final` is active, deactivate it to avoid
+shortcode conflicts.
+=======
 The actual Typebot is embedded using:
 
 ```

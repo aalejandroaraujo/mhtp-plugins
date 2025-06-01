@@ -1,5 +1,10 @@
 # MHTP Chat Interface - Version 3.0.0
 
+**Note:** This legacy plugin was originally built for Botpress. The
+newer `mhtp-typebot-chat` plugin replaces the Botpress integration with
+a simple Typebot embed. Only activate one of these plugins at a time to
+avoid shortcode conflicts.
+
 ## Description
 MHTP Chat Interface is a WordPress plugin that provides a chat interface for experts with WooCommerce integration. This plugin allows users to chat with experts who are set up as WooCommerce products.
 
