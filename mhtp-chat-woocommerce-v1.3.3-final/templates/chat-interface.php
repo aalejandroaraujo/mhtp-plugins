@@ -69,7 +69,8 @@ if (!defined('ABSPATH')) {
                             Guardar resumen online
                         </label>
                     </div>
-                    <button id="mhtp-download-conversation" class="mhtp-download-button" disabled>
+                    <!-- Descarga deshabilitada hasta integrar almacenamiento -->
+                    <button id="mhtp-download-conversation" class="mhtp-download-button" style="display:none" disabled>
                         Descargar conversación
                     </button>
                 </div>
@@ -105,6 +106,7 @@ if (!defined('ABSPATH')) {
             ?>
             <div id="mhtp-session-overlay" class="mhtp-session-overlay" style="display:none;">
                 Tu sesión ha concluido
+            </div>
             <div class="mhtp-chat-footer">
                 <div class="mhtp-chat-controls">
                     <button id="mhtp-end-session" class="mhtp-end-session-button">Finalizar sesión</button>

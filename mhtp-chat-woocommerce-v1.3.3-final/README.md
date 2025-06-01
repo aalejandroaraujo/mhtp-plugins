@@ -4,9 +4,13 @@
 built-in support for embedding a [Typebot](https://typebot.io) conversation
 directly. The separate `mhtp-typebot-chat` plugin is no longer required.
 
-The embed uses `https://typebot.io/` by default. You can adjust the base URL
-by hooking into the `mhtp_typebot_embed_base` filter if your Typebot instance
-uses a different domain, such as `https://embed.typebot.io/`.
+The embed uses `https://embed.typebot.io/` by default. You can adjust the
+base URL by hooking into the `mhtp_typebot_embed_base` filter if your
+Typebot instance requires a different domain.
+
+When embedding via Typebot the conversation transcript can't be exported,
+so the **Descargar conversación** button is hidden until a storage
+mechanism is implemented.
 
 ## Description
 MHTP Chat Interface is a WordPress plugin that provides a chat interface for experts with WooCommerce integration. This plugin allows users to chat with experts who are set up as WooCommerce products.
