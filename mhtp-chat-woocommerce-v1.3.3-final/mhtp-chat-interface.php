@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MHTP Chat Interface
  * Plugin URI: https://mhtp.com
- * Description: Chat interface for Mental Health Triage Platform
+ * Description: Chat interface for Mental Health Triage Platform using Typebot
  * Version: 3.0.0
  * Author: MHTP Team
  * Author URI: https://mhtp.com
@@ -164,11 +164,9 @@ class MHTP_Chat_Interface {
                 '</div>';
         }
         
-        // Enqueue styles and scripts
+        // Enqueue styles only (Typebot handles its own scripts)
         wp_enqueue_style('mhtp-chat-interface');
         wp_enqueue_style('mhtp-button-fix');
-        wp_enqueue_script('mhtp-chat-interface');
-        wp_enqueue_script('mhtp-button-fix');
         
         // Start output buffering
         ob_start();
