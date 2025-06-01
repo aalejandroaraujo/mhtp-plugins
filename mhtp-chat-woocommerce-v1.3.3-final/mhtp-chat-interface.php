@@ -3,7 +3,7 @@
  * Plugin Name: MHTP Chat Interface
  * Plugin URI: https://mhtp.com
  * Description: Chat interface for Mental Health Triage Platform using Typebot
- * Version: 3.0.0
+ * Version: 3.1.0
  * Author: MHTP Team
  * Author URI: https://mhtp.com
  * Text Domain: mhtp-chat-interface
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('MHTP_CHAT_VERSION', '3.0.0');
+define('MHTP_CHAT_VERSION', '3.1.0');
 define('MHTP_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('MHTP_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MHTP_CHAT_PLUGIN_FILE', __FILE__);
@@ -656,3 +656,39 @@ class MHTP_Chat_Interface {
 
 // Initialize the plugin
 $mhtp_chat_interface = new MHTP_Chat_Interface();
+
+/**
+ * Basic Typebot embed shortcode.
+ *
+ * This replicates the functionality of the standalone Typebot plugin so the
+ * chat interface no longer depends on an additional plugin. The shortcode
+ * accepts `typebot`, `width`, `height` and an optional `url_params` string.
+ */
+function mhtp_builtin_typebot_shortcode( $atts ) {
+    $atts = shortcode_atts(
+        array(
+            'typebot'    => '',
+            'width'      => '100%',
+            'height'     => '600px',
+            'url_params' => '',
+        ),
+        $atts,
+        'typebot'
+    );
+
+    $src = 'https://typebot.io/' . $atts['typebot'];
+    if ( ! empty( $atts['url_params'] ) ) {
+        $src .= '?' . ltrim( $atts['url_params'], '?' );
+    }
+
+    return sprintf(
+        '<iframe src="%1$s" width="%2$s" height="%3$s" style="border:0;" allow="camera; microphone; autoplay; clipboard-write;"></iframe>',
+        esc_url( $src ),
+        esc_attr( $atts['width'] ),
+        esc_attr( $atts['height'] )
+    );
+}
+
+if ( ! shortcode_exists( 'typebot' ) ) {
+    add_shortcode( 'typebot', 'mhtp_builtin_typebot_shortcode' );
+}
