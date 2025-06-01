@@ -438,9 +438,16 @@ jQuery(document).ready(function($) {
         }
     }
     
-    // Check if we're on the chat interface page
+    // Check if we're on the full chat interface (Botpress) page
     if (chatMessages.length > 0 && chatInput.length > 0) {
         initChat();
+    } else if (sessionTimerElement.length > 0) {
+        // Fallback for Typebot embed – just enable controls and timer
+        sessionActive = true;
+        sessionEndTime = new Date();
+        sessionEndTime.setMinutes(sessionEndTime.getMinutes() + 45);
+        setupEventListeners();
+        startSessionTimer();
     }
     
     // Add CSS for typing indicator and conversation saving
