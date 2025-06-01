@@ -103,6 +103,9 @@ if (!defined('ABSPATH')) {
                 'url_params' => $query,
             ));
             ?>
+            <div id="mhtp-session-overlay" class="mhtp-session-overlay" style="display:none;">
+                Tu sesión ha concluido
+            </div>
         </div>
     </div>
 </div>
