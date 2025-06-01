@@ -10,6 +10,8 @@ jQuery(document).ready(function($) {
     const cancelEndSessionButton = $('#mhtp-cancel-end-session');
     const saveConversationCheckbox = $('#mhtp-save-conversation');
     const downloadConversationButton = $('#mhtp-download-conversation');
+    const chatMain = $('.mhtp-chat-main');
+    const sessionOverlay = $('#mhtp-session-overlay');
     
     // Session variables
     let sessionActive = false; // Start as false until session is confirmed
@@ -18,6 +20,7 @@ jQuery(document).ready(function($) {
     let sessionEndTime;
     let conversationMessages = []; // Array to store all messages for saving
     let sessionStarted = false; // Track if session has been started with the server
+    const isTypebotOnly = chatMessages.length === 0 && chatInput.length === 0 && chatMain.find('iframe').length > 0;
     
     // Initialize chat
     function initChat() {
@@ -165,7 +168,12 @@ jQuery(document).ready(function($) {
         
         // Download conversation
         if (downloadConversationButton.length) {
-            downloadConversationButton.on('click', function() {
+            downloadConversationButton.on('click', function(e) {
+                if (isTypebotOnly) {
+                    e.preventDefault();
+                    alert('La descarga de la conversaci\u00f3n no est\u00e1 disponible con Typebot.');
+                    return;
+                }
                 if (conversationMessages.length > 0) {
                     generatePDF();
                 }
@@ -411,10 +419,16 @@ jQuery(document).ready(function($) {
     // End session
     function endSession() {
         if (!sessionActive) return;
-        
+
         sessionActive = false;
         clearInterval(sessionTimer);
-        
+
+        // If using the Typebot iframe only, grey it out
+        if (chatMain.find('iframe').length) {
+            chatMain.addClass('disabled');
+            sessionOverlay.show();
+        }
+
         // Disable input
         chatInput.prop('disabled', true);
         sendButton.prop('disabled', true);
