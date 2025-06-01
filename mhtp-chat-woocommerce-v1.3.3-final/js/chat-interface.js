@@ -171,7 +171,7 @@ jQuery(document).ready(function($) {
             downloadConversationButton.on('click', function(e) {
                 if (isTypebotOnly) {
                     e.preventDefault();
-                    alert('La descarga de la conversación no está disponible con Typebot.');
+                    alert('La descarga de la conversación aún no está disponible.');
                     return;
                 }
                 if (conversationMessages.length > 0) {
@@ -419,7 +419,7 @@ jQuery(document).ready(function($) {
     // End session
     function endSession() {
         if (!sessionActive) return;
-        
+
         sessionActive = false;
         clearInterval(sessionTimer);
 

@@ -15,7 +15,7 @@ mechanism is implemented.
 ## Description
 MHTP Chat Interface is a WordPress plugin that provides a chat interface for experts with WooCommerce integration. This plugin allows users to chat with experts who are set up as WooCommerce products.
 
-**Note:** This version embeds a [Typebot](https://typebot.io) conversation instead of the previous Botpress-based chat UI while keeping the same page layout.
+**Note:** This version embeds a [Typebot](https://typebot.io) conversation instead of the previous Botpress-based chat UI while keeping the same page layout. When using Typebot the conversation transcript cannot be exported, so the "Descargar conversación" button is disabled.
 
 ## New in Version 1.3.0
 - **Unified Session Management**: Now properly decrements sessions when users start a chat, working with both test sessions (from MHTP Test Sessions plugin) and paid sessions (from WooCommerce)
