@@ -85,65 +85,24 @@ if (!defined('ABSPATH')) {
         </div>
         
         <div class="mhtp-chat-main">
-            <div class="mhtp-chat-messages" id="mhtp-chat-messages">
-                <div class="mhtp-message mhtp-message-expert">
-                    <div class="mhtp-message-content">
-                        <p>Hola, soy <?php 
-                            // Extract just the name without any specialty or description
-                            $full_name = $expert['name'];
-                            
-                            // Special case for Lucía Apoyo
-                            if (strpos($full_name, 'Lucía Apoyo') !== false) {
-                                echo 'Lucía Apoyo';
-                            } else {
-                                // Handle different types of separators (dash, hyphen, en dash, em dash)
-                                $name_parts = preg_split('/\s*[-–—]\s*/', $full_name, 2);
-                                
-                                // If we have parts, use the first one, otherwise use the full name
-                                $clean_name = !empty($name_parts[0]) ? trim($name_parts[0]) : trim($full_name);
-                                
-                                // Remove any "Experto en", "Experta en", "Especialista en" prefixes
-                                $clean_name = preg_replace('/^(Experto|Experta|Especialista)\s+en\s+/i', '', $clean_name);
-                                
-                                echo esc_html($clean_name);
-                            }
-                        ?>. ¿En qué puedo ayudarte hoy?</p>
-                    </div>
-                    <div class="mhtp-message-time">Ahora</div>
-                </div>
-            </div>
-            
-            <div class="mhtp-chat-footer">
-                <div class="mhtp-chat-input-container">
-                    <textarea id="mhtp-chat-input" class="mhtp-chat-input" placeholder="Escribe tu mensaje aquí..."></textarea>
-                    <button id="mhtp-send-button" class="mhtp-send-button">Enviar</button>
-                </div>
-                
-                <div class="mhtp-chat-controls">
-                    <button id="mhtp-end-session" class="mhtp-end-session-button">Finalizar sesión</button>
-                    <div id="mhtp-session-timer" class="mhtp-session-timer">45:00</div>
-                </div>
-            </div>
+            <?php
+            $params = array(
+                'expertName' => !empty($expert['name']) ? $expert['name'] : '',
+            );
+            if (isset($_GET['topic'])) {
+                $params['topic'] = sanitize_text_field($_GET['topic']);
+            }
+            if (isset($_GET['is_client'])) {
+                $params['isClient'] = sanitize_text_field($_GET['is_client']);
+            }
+            $query = http_build_query(array_filter($params));
+            $shortcode = '[typebot typebot="especialista-5gzhab4" width="100%" height="600px"';
+            if ($query) {
+                $shortcode .= ' url_params="' . esc_attr($query) . '"';
+            }
+            $shortcode .= ']';
+            echo do_shortcode($shortcode);
+            ?>
         </div>
     </div>
 </div>
-
-<!-- Session End Confirmation Modal -->
-<div id="mhtp-end-session-modal" class="mhtp-modal">
-    <div class="mhtp-modal-content">
-        <div class="mhtp-modal-header">
-            <h3>Confirmar finalización</h3>
-        </div>
-        <div class="mhtp-modal-body">
-            <p>¿Estás seguro de que deseas finalizar la sesión de chat?</p>
-            <p>Una vez finalizada, no podrás continuar con esta conversación.</p>
-        </div>
-        <div class="mhtp-modal-footer">
-            <button id="mhtp-cancel-end-session" class="mhtp-button mhtp-button-secondary">Cancelar</button>
-            <button id="mhtp-confirm-end-session" class="mhtp-button mhtp-button-primary">Finalizar sesión</button>
-        </div>
-    </div>
-</div>
-
-<!-- Load jsPDF for PDF generation -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>

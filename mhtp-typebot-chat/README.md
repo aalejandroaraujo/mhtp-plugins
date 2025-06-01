@@ -33,3 +33,5 @@ attributes if needed:
 
 Parameters other than `typebot`, `width` and `height` are passed to Typebot as
 URL variables.
+=======
+available inside Typebot.
