@@ -96,12 +96,12 @@ if (!defined('ABSPATH')) {
                 $params['isClient'] = sanitize_text_field($_GET['is_client']);
             }
             $query = http_build_query(array_filter($params));
-            $shortcode = '[typebot typebot="especialista-5gzhab4" width="100%" height="600px"';
-            if ($query) {
-                $shortcode .= ' url_params="' . esc_attr($query) . '"';
-            }
-            $shortcode .= ']';
-            echo do_shortcode($shortcode);
+            echo mhtp_builtin_typebot_shortcode(array(
+                'typebot'    => 'especialista-5gzhab4',
+                'width'      => '100%',
+                'height'     => '600px',
+                'url_params' => $query,
+            ));
             ?>
         </div>
     </div>
