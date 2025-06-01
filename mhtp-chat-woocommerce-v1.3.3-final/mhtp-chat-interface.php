@@ -677,7 +677,7 @@ function mhtp_builtin_typebot_shortcode( $atts ) {
         $atts,
         'typebot'
     );
-    $base = apply_filters( 'mhtp_typebot_embed_base', 'https://embed.typebot.io/' );
+    $base = apply_filters( 'mhtp_typebot_embed_base', 'https://typebot.io/' );
     $src  = trailingslashit( $base ) . $atts['typebot'];
     if ( ! empty( $atts['url_params'] ) ) {
         $src .= '?' . ltrim( $atts['url_params'], '?' );

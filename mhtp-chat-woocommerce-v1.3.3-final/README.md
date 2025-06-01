@@ -4,7 +4,7 @@
 built-in support for embedding a [Typebot](https://typebot.io) conversation
 directly. The separate `mhtp-typebot-chat` plugin is no longer required.
 
-The embed uses `https://embed.typebot.io/` by default. You can adjust the
+The embed uses `https://typebot.io/` by default. You can adjust the
 base URL by hooking into the `mhtp_typebot_embed_base` filter if your
 Typebot instance requires a different domain.
 
