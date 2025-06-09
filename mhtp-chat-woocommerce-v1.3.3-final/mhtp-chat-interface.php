@@ -20,6 +20,7 @@ if (!defined('ABSPATH')) {
 // Define plugin constants
 define('MHTP_CHAT_VERSION', '3.1.0');
 define('MHTP_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
+require_once MHTP_CHAT_PLUGIN_DIR . 'includes/class-mhtp-chat.php';
 define('MHTP_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MHTP_CHAT_PLUGIN_FILE', __FILE__);
 // Botpress Chat API base URL (no trailing slash)
