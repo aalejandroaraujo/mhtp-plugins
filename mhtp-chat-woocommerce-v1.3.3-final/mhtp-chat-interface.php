@@ -107,6 +107,9 @@ class MHTP_Chat_Interface {
     private function includes() {
         // Include session history manager (replaces the updater)
         require_once MHTP_CHAT_PLUGIN_DIR . 'includes/session-history-manager.php';
+
+        // Include Typebot settings page
+        require_once MHTP_CHAT_PLUGIN_DIR . 'includes/typebot-settings.php';
     }
     
     /**

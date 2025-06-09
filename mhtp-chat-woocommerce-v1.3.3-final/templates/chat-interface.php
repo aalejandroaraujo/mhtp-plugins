@@ -87,22 +87,30 @@ if (!defined('ABSPATH')) {
         
         <div class="mhtp-chat-main">
             <?php
-            $params = array(
-                'expertName' => !empty($expert['name']) ? $expert['name'] : '',
+            $cfg      = get_option('mhtp_typebot_options');
+            $url      = !empty($cfg['chatbot_url']) ? $cfg['chatbot_url'] : 'https://typebot.io/especialista-5gzhab4';
+            $selected = isset($cfg['selected_params']) && is_array($cfg['selected_params']) ? $cfg['selected_params'] : array();
+
+            $available = array(
+                'ExpertId'       => $expert_id,
+                'ExpertName'     => !empty($expert['name']) ? $expert['name'] : '',
+                'Topic'          => isset($_GET['topic']) ? sanitize_text_field($_GET['topic']) : '',
+                'HistoryEnabled' => '1',
+                'IsClient'       => isset($_GET['is_client']) ? sanitize_text_field($_GET['is_client']) : '',
             );
-            if (isset($_GET['topic'])) {
-                $params['topic'] = sanitize_text_field($_GET['topic']);
+
+            $params = array();
+            foreach ($selected as $key) {
+                if (isset($available[$key]) && '' !== $available[$key]) {
+                    $params[$key] = $available[$key];
+                }
             }
-            if (isset($_GET['is_client'])) {
-                $params['isClient'] = sanitize_text_field($_GET['is_client']);
-            }
-            $query = http_build_query(array_filter($params));
-            echo mhtp_builtin_typebot_shortcode(array(
-                'typebot'    => 'especialista-5gzhab4',
-                'width'      => '100%',
-                'height'     => '600px',
-                'url_params' => $query,
-            ));
+
+            $src = add_query_arg($params, $url);
+            echo sprintf(
+                '<iframe src="%1$s" width="100%%" height="600px" style="border:0;" allow="camera; microphone; autoplay; clipboard-write;"></iframe>',
+                esc_url($src)
+            );
             ?>
             <div id="mhtp-session-overlay" class="mhtp-session-overlay" style="display:none;">
                 Tu sesión ha concluido
