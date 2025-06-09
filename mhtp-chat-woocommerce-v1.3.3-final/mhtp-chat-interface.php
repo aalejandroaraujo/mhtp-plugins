@@ -691,30 +691,17 @@ function mhtp_builtin_typebot_shortcode( $atts ) {
         'typebot'
     );
     $base = apply_filters( 'mhtp_typebot_embed_base', 'https://typebot.io/' );
-    $slug = $atts['typebot'];
-    if ( preg_match( '#^https?://#', $slug ) ) {
-        $slug = preg_replace( '#^https?://[^/]+/#', '', untrailingslashit( $slug ) );
-    }
-    $prefilled = array();
+    $src  = trailingslashit( $base ) . $atts['typebot'];
     if ( ! empty( $atts['url_params'] ) ) {
-        parse_str( ltrim( $atts['url_params'], '?' ), $prefilled );
+        $src .= '?' . ltrim( $atts['url_params'], '?' );
     }
 
-    ob_start();
-    ?>
-    <script>
-    window.typebotQueue = window.typebotQueue || [];
-    function Typebot(){ typebotQueue.push(arguments); }
-    Typebot('init', {
-        typebot: '<?php echo esc_js( $slug ); ?>',
-        <?php if ( ! empty( $prefilled ) ) : ?>
-        prefilledVariables: <?php echo wp_json_encode( $prefilled ); ?>
-        <?php endif; ?>
-    });
-    </script>
-    <script src="https://unpkg.com/@typebot.io/js@1.0"></script>
-    <?php
-    return ob_get_clean();
+    return sprintf(
+        '<iframe src="%1$s" width="%2$s" height="%3$s" style="border:0;" allow="camera; microphone; autoplay; clipboard-write;"></iframe>',
+        esc_url( $src ),
+        esc_attr( $atts['width'] ),
+        esc_attr( $atts['height'] )
+    );
 }
 
 if ( ! shortcode_exists( 'typebot' ) ) {

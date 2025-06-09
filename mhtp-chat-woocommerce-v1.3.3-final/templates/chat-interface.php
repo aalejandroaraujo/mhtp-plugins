@@ -90,7 +90,6 @@ if (!defined('ABSPATH')) {
             $cfg      = get_option('mhtp_typebot_options');
             $url      = !empty($cfg['chatbot_url']) ? $cfg['chatbot_url'] : 'https://typebot.io/especialista-5gzhab4';
             $selected = isset($cfg['selected_params']) && is_array($cfg['selected_params']) ? $cfg['selected_params'] : array();
-            $values   = isset($cfg['param_values']) && is_array($cfg['param_values']) ? $cfg['param_values'] : array();
 
             $available = array(
                 'ExpertId'       => $expert_id,
@@ -100,42 +99,18 @@ if (!defined('ABSPATH')) {
                 'IsClient'       => isset($_GET['is_client']) ? sanitize_text_field($_GET['is_client']) : '',
             );
 
-            if ( ! function_exists( 'mhtp_replace_placeholders' ) ) {
-                function mhtp_replace_placeholders( $value, $vars ) {
-                    return preg_replace_callback( '/{([^}]+)}/', function( $m ) use ( $vars ) {
-                        return isset( $vars[ $m[1] ] ) ? $vars[ $m[1] ] : $m[0];
-                    }, $value );
-                }
-            }
-
             $params = array();
             foreach ($selected as $key) {
-                $param_value = '';
-                if ( isset($values[$key]) && $values[$key] !== '' ) {
-                    $param_value = mhtp_replace_placeholders( $values[$key], $available );
-                } elseif ( isset($available[$key]) && '' !== $available[$key] ) {
-                    $param_value = $available[$key];
-                }
-                if ( '' !== $param_value ) {
-                    $params[$key] = $param_value;
+                if (isset($available[$key]) && '' !== $available[$key]) {
+                    $params[$key] = $available[$key];
                 }
             }
 
-            $slug = preg_replace('#^https?://[^/]+/#', '', untrailingslashit($url));
-
-            ?>
-            <script>
-            window.typebotQueue = window.typebotQueue || [];
-            function Typebot(){ typebotQueue.push(arguments); }
-            Typebot('init', {
-                typebot: '<?php echo esc_js( $slug ); ?>',
-                <?php if ( ! empty( $params ) ) : ?>
-                prefilledVariables: <?php echo wp_json_encode( $params ); ?>
-                <?php endif; ?>
-            });
-            </script>
-            <script src="https://unpkg.com/@typebot.io/js@1.0"></script>
-            <?php
+            $src = add_query_arg($params, $url);
+            echo sprintf(
+                '<iframe src="%1$s" width="100%%" height="600px" style="border:0;" allow="camera; microphone; autoplay; clipboard-write;"></iframe>',
+                esc_url($src)
+            );
             ?>
             <div id="mhtp-session-overlay" class="mhtp-session-overlay" style="display:none;">
                 Tu sesión ha concluido
