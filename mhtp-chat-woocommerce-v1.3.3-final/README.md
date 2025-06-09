@@ -4,10 +4,9 @@
 built-in support for embedding a [Typebot](https://typebot.io) conversation
 directly. The separate `mhtp-typebot-chat` plugin is no longer required.
 
-The embed now uses Typebot's official JavaScript snippet instead of an iframe.
-The base script URL defaults to `https://typebot.io/` but can be
-modified via the `mhtp_typebot_embed_base` filter if your instance
-requires a different domain.
+The embed uses `https://typebot.io/` by default. You can adjust the
+base URL by hooking into the `mhtp_typebot_embed_base` filter if your
+Typebot instance requires a different domain.
 
 When embedding via Typebot the conversation transcript can't be exported,
 so the **Descargar conversación** button is hidden until a storage
