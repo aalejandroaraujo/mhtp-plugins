@@ -96,9 +96,14 @@ class MHTP_Chat_Interface {
     public function init() {
         // Load text domain for translations
         load_plugin_textdomain('mhtp-chat-interface', false, dirname(plugin_basename(__FILE__)) . '/languages');
-        
+
         // Include required files
         $this->includes();
+
+        // Instantiate the front-end chat integration after files are loaded
+        if ( class_exists( 'MHTP_Chat' ) ) {
+            new MHTP_Chat();
+        }
     }
     
     /**
@@ -110,6 +115,9 @@ class MHTP_Chat_Interface {
 
         // Include Typebot settings page
         require_once MHTP_CHAT_PLUGIN_DIR . 'includes/typebot-settings.php';
+
+        // Chat front-end integration
+        require_once MHTP_CHAT_PLUGIN_DIR . 'includes/class-mhtp-chat.php';
     }
     
     /**
