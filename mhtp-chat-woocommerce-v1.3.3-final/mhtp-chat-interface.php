@@ -651,7 +651,11 @@ class MHTP_Chat_Interface {
             $usage_history = array();
         }
         
-        $usage_history[] = $usage;
+    // Typebot can be hosted under different domains. By default we use the
+    // public site URL, which allows the chatbot to load outside the embed
+    // subdomain if necessary. Developers may override this via the
+    // `mhtp_typebot_embed_base` filter.
+    $base = apply_filters( 'mhtp_typebot_embed_base', 'https://typebot.io/' );
         update_user_meta($user_id, 'mhtp_wc_session_usage', $usage_history);
     }
 }
