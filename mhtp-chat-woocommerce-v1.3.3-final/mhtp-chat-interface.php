@@ -110,6 +110,9 @@ class MHTP_Chat_Interface {
 
         // Include Typebot settings page
         require_once MHTP_CHAT_PLUGIN_DIR . 'includes/typebot-settings.php';
+
+        // Chat front-end integration
+        require_once MHTP_CHAT_PLUGIN_DIR . 'includes/class-mhtp-chat.php';
     }
     
     /**
@@ -661,6 +664,7 @@ class MHTP_Chat_Interface {
 
 // Initialize the plugin
 $mhtp_chat_interface = new MHTP_Chat_Interface();
+new MHTP_Chat();
 
 /**
  * Basic Typebot embed shortcode.
