@@ -59,6 +59,14 @@ class MHTP_Typebot_Settings {
             'mhtp-typebot-config',
             'mhtp_typebot_section'
         );
+
+        add_settings_field(
+            'param_values',
+            __( 'Parameter values', 'mhtp-chat-interface' ),
+            array( $this, 'param_values_render' ),
+            'mhtp-typebot-config',
+            'mhtp_typebot_section'
+        );
     }
 
     public function chatbot_url_render() {
@@ -83,6 +91,38 @@ class MHTP_Typebot_Settings {
         echo '<p id="param_count_notice" style="color:red;"></p>';
     }
 
+    public function param_values_render() {
+        $options  = get_option( 'mhtp_typebot_options' );
+        $selected = isset( $options['selected_params'] ) && is_array( $options['selected_params'] ) ? $options['selected_params'] : array();
+        $values   = isset( $options['param_values'] ) && is_array( $options['param_values'] ) ? $options['param_values'] : array();
+        foreach ( $this->params as $param ) {
+            $style = in_array( $param, $selected, true ) ? '' : 'display:none;';
+            $val   = isset( $values[ $param ] ) ? $values[ $param ] : '';
+            printf(
+                '<div class="mhtp-param-value" data-param="%1$s" style="%2$s"><label>%1$s&nbsp;%3$s</label><br><input type="text" name="mhtp_typebot_options[param_values][%1$s]" value="%4$s" class="regular-text"></div>',
+                esc_attr( $param ),
+                esc_attr( $style ),
+                esc_html__( 'value', 'mhtp-chat-interface' ),
+                esc_attr( $val )
+            );
+        }
+        ?>
+        <script>
+        jQuery(document).ready(function($){
+            function toggleValues(){
+                $('div.mhtp-param-value').each(function(){
+                    var param = $(this).data('param');
+                    var checked = $('input[name="mhtp_typebot_options[selected_params][]"][value="'+param+'"]').prop('checked');
+                    $(this).css('display', checked ? 'block' : 'none');
+                });
+            }
+            $('input[name="mhtp_typebot_options[selected_params][]"]').on('change', toggleValues);
+            toggleValues();
+        });
+        </script>
+        <?php
+    }
+
     public function sanitize( $input ) {
         $output                  = array();
         $output['chatbot_url']   = isset( $input['chatbot_url'] ) ? esc_url_raw( $input['chatbot_url'] ) : '';
@@ -95,9 +135,19 @@ class MHTP_Typebot_Settings {
                 }
             }
         }
+        $output['param_values'] = array();
+        if ( ! empty( $input['param_values'] ) && is_array( $input['param_values'] ) ) {
+            foreach ( $input['param_values'] as $key => $val ) {
+                if ( in_array( $key, $this->params, true ) ) {
+                    $output['param_values'][ $key ] = sanitize_text_field( $val );
+                }
+            }
+        }
+
         if ( count( $output['selected_params'] ) !== $output['param_count'] ) {
             add_settings_error( 'mhtp_typebot_options', 'param_mismatch', __( 'Selected parameters must match the number of parameters.', 'mhtp-chat-interface' ) );
         }
+
         return $output;
     }
 
@@ -105,6 +155,7 @@ class MHTP_Typebot_Settings {
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'Typebot Configuration', 'mhtp-chat-interface' ); ?></h1>
+            <p><?php esc_html_e( 'Configure your Typebot embed. Enter the full URL or slug for your bot. Select the parameters you wish to pass and specify a value for each one. You may use placeholders like {ExpertId} which will be replaced dynamically on the chat page.', 'mhtp-chat-interface' ); ?></p>
             <form action="options.php" method="post">
                 <?php
                 settings_fields( 'mhtp_typebot_config' );
