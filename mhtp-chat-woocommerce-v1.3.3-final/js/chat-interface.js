@@ -485,7 +485,7 @@ jQuery(document).ready(function($) {
         }
     }
     
-    // Check if we're on the full chat interface (Botpress) page
+    // Check if we're on the full chat interface page
     if (chatMessages.length > 0 && chatInput.length > 0) {
         initChat();
     } else if (sessionTimerElement.length > 0) {

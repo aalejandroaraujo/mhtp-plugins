@@ -26,33 +26,10 @@ define('MHTP_CHAT_PLUGIN_FILE', __FILE__);
 if (!defined('MHTP_CHAT_ENABLE_LOG')) {
     define('MHTP_CHAT_ENABLE_LOG', false);
 }
-// Botpress Chat API base URL (no trailing slash)
-define('MHTP_BOTPRESS_CHAT_API', 'https://chat.botpress.cloud/v1');
 
-/*
- * ID of your Botpress Cloud bot. Define in wp-config.php as
- * MHTP_BOTPRESS_BOT_ID to override the default placeholder.
- */
-if (!defined('MHTP_BOTPRESS_BOT_ID')) {
-    define('MHTP_BOTPRESS_BOT_ID', '{bot_id}');
-}
-
-/*
- * API key for authenticating with Botpress Cloud. For security reasons you
- * should define this constant in wp-config.php and never commit your real key
- * to version control.
- */
-if (!defined('MHTP_BOTPRESS_API_KEY')) {
-    define('MHTP_BOTPRESS_API_KEY', '');
-}
-
-/*
- * Optional secret to validate incoming webhook requests from Botpress.
- * Set this constant in wp-config.php and configure the Botpress webhook
- * to send an Authorization header of the form "Bearer <secret>".
- */
-if (!defined('MHTP_BOTPRESS_WEBHOOK_SECRET')) {
-    define('MHTP_BOTPRESS_WEBHOOK_SECRET', '');
+// OpenAI API key used for generating assistant replies
+if (!defined('MHTP_OPENAI_API_KEY')) {
+    define('MHTP_OPENAI_API_KEY', '');
 }
 
 /**
@@ -333,17 +310,17 @@ class MHTP_Chat_Interface {
             return;
         }
 
-        // Initialize conversation with Botpress
-        $conversation_id = $this->get_or_create_conversation($user_id);
-        if (is_wp_error($conversation_id)) {
-            $error_msg = $conversation_id->get_error_message();
-            $this->admin_log('Failed to start conversation: ' . $error_msg);
-            wp_send_json_error(array('message' => 'Failed to start conversation: ' . $error_msg));
-            return;
-        }
-
-        // Persist conversation for future messages
-        update_user_meta($user_id, 'mhtp_bp_conversation_id', $conversation_id);
+        // Initialize empty conversation history for OpenAI
+        update_user_meta(
+            $user_id,
+            'mhtp_openai_history',
+            array(
+                array(
+                    'role'    => 'system',
+                    'content' => 'You are a helpful assistant.'
+                )
+            )
+        );
 
         wp_send_json_success(array('message' => 'Session started successfully'));
     }
@@ -400,102 +377,6 @@ class MHTP_Chat_Interface {
         return false;
     }
 
-    /**
-     * Get or create a Botpress conversation for the WordPress user.
-     *
-     * @param int $wp_user_id WordPress user ID.
-     * @return string|WP_Error Conversation ID or error.
-     */
-    private function get_or_create_conversation($wp_user_id) {
-        if (empty(MHTP_BOTPRESS_API_KEY) || empty(MHTP_BOTPRESS_BOT_ID)) {
-            return new WP_Error('bp_no_key', 'Botpress API key or bot ID not configured');
-        }
-        $url = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'conversations.getOrCreate';
-        $payload = array(
-            'botId' => MHTP_BOTPRESS_BOT_ID,
-            'user'  => array('id' => 'wpuser-' . $wp_user_id),
-        );
-
-        $response = wp_remote_post(
-            $url,
-            array(
-                'headers' => array(
-                    'Content-Type'  => 'application/json',
-                    'Authorization' => 'Bearer ' . MHTP_BOTPRESS_API_KEY,
-                ),
-                'body'    => wp_json_encode($payload),
-                'timeout' => 15,
-            )
-        );
-
-        if (is_wp_error($response)) {
-            $this->admin_log('Conversation init failed: ' . $response->get_error_message());
-            return $response;
-        }
-
-        $code = wp_remote_retrieve_response_code($response);
-        $body = wp_remote_retrieve_body($response);
-        if ($code < 200 || $code >= 300) {
-            $this->admin_log('Unexpected status from Botpress (' . $code . '): ' . $body);
-            return new WP_Error('bp_conversation_failed', 'Unexpected status from Botpress: ' . $code);
-        }
-
-        $decoded = json_decode($body, true);
-        if (json_last_error() !== JSON_ERROR_NONE || empty($decoded['conversation']['id'])) {
-            $this->admin_log('Invalid conversation response: ' . $body);
-            return new WP_Error('bp_conversation_failed', 'Invalid JSON response');
-        }
-
-        return sanitize_text_field($decoded['conversation']['id']);
-    }
-
-    /**
-     * Handle webhook callbacks from Botpress (optional).
-     *
-     * @param WP_REST_Request $request Incoming request.
-     * @return WP_REST_Response
-     */
-    public function rest_webhook_handler(WP_REST_Request $request) {
-        $auth_header = $request->get_header('Authorization');
-        $expected    = 'Bearer ' . MHTP_BOTPRESS_WEBHOOK_SECRET;
-        if ($auth_header !== $expected) {
-            $this->admin_log('Webhook authorization failed: ' . $auth_header);
-            return new WP_REST_Response(null, 401);
-        }
-
-        $payload = $request->get_json_params();
-        $this->admin_log('Botpress webhook received: ' . wp_json_encode($payload));
-
-        // Attempt to extract the conversation ID and bot reply text
-        $conversation_id = '';
-        if (isset($payload['conversationId'])) {
-            $conversation_id = sanitize_text_field($payload['conversationId']);
-        }
-
-        $bot_reply = '';
-        if (isset($payload['messages'][0]['payload']['text'])) {
-            $bot_reply = sanitize_text_field($payload['messages'][0]['payload']['text']);
-        } elseif (isset($payload['payload']['text'])) {
-            $bot_reply = sanitize_text_field($payload['payload']['text']);
-        }
-
-        if ($conversation_id && $bot_reply) {
-            // Try to locate the WP user by Botpress conversation ID
-            $users = get_users(array(
-                'meta_key'   => 'mhtp_bp_conversation_id',
-                'meta_value' => $conversation_id,
-                'fields'     => 'ID',
-                'number'     => 1,
-            ));
-
-            if (!empty($users)) {
-                $user_id = (int) $users[0];
-                update_user_meta($user_id, 'mhtp_last_bot_reply', $bot_reply);
-            }
-        }
-
-        return new WP_REST_Response(array('received' => true));
-    }
 
     /**
      * Register REST routes.
@@ -520,20 +401,10 @@ class MHTP_Chat_Interface {
             )
         );
 
-        // Optional endpoint to receive Botpress webhook calls
-        register_rest_route(
-            'mhtp-chat',
-            '/webhook',
-            array(
-                'methods'             => 'POST',
-                'callback'            => array($this, 'rest_webhook_handler'),
-                'permission_callback' => '__return_true',
-            )
-        );
     }
 
     /**
-     * Forward user message to Botpress and return the reply.
+     * Forward a user message to OpenAI and return the reply.
      *
      * @param WP_REST_Request $request Request object.
      *
@@ -543,108 +414,62 @@ class MHTP_Chat_Interface {
         $this->admin_log('rest_proxy_message payload=' . wp_json_encode($request->get_params()));
         $message = $request->get_param('message');
 
-        $conversation_id = get_user_meta(get_current_user_id(), 'mhtp_bp_conversation_id', true);
-
-        if (empty($conversation_id)) {
-            $conversation_id = $this->get_or_create_conversation(get_current_user_id());
-            if (is_wp_error($conversation_id)) {
-                $error_msg = $conversation_id->get_error_message();
-                $this->admin_log('Failed to get conversation: ' . $error_msg);
-                return new WP_REST_Response(array('error' => 'Conversation init failed'), 500);
-            }
-            update_user_meta(get_current_user_id(), 'mhtp_bp_conversation_id', $conversation_id);
+        if (empty(MHTP_OPENAI_API_KEY)) {
+            return new WP_REST_Response(array('error' => 'OpenAI not configured'), 500);
         }
-        if (empty(MHTP_BOTPRESS_API_KEY)) {
-            $this->admin_log('Botpress API key missing');
-            return new WP_REST_Response(array('error' => 'Botpress not configured'), 500);
+
+        $history = get_user_meta(get_current_user_id(), 'mhtp_openai_history', true);
+        if (!is_array($history)) {
+            $history = array(
+                array(
+                    'role'    => 'system',
+                    'content' => 'You are a helpful assistant.'
+                ),
+            );
         }
-        $botpress_url = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'messages';
 
-        $payload = array(
-            'botId'         => MHTP_BOTPRESS_BOT_ID,
-            'conversationId' => $conversation_id,
-            'type'          => 'text',
-            'text'          => $message,
-        );
-
+        $history[] = array('role' => 'user', 'content' => $message);
 
         $response = wp_remote_post(
-            $botpress_url,
+            'https://api.openai.com/v1/chat/completions',
             array(
                 'headers' => array(
                     'Content-Type'  => 'application/json',
-                    'Authorization' => 'Bearer ' . MHTP_BOTPRESS_API_KEY,
+                    'Authorization' => 'Bearer ' . MHTP_OPENAI_API_KEY,
                 ),
-                'body'    => wp_json_encode($payload),
-                'timeout' => 15,
+                'body'    => wp_json_encode(
+                    array(
+                        'model'    => 'gpt-3.5-turbo',
+                        'messages' => $history,
+                    )
+                ),
+                'timeout' => 20,
             )
         );
 
         if (is_wp_error($response)) {
-            $this->admin_log('Botpress send failed: ' . $response->get_error_message());
-            return new WP_REST_Response(array('error' => 'Failed to contact Botpress'), 500);
+            $this->admin_log('OpenAI request failed: ' . $response->get_error_message());
+            return new WP_REST_Response(array('error' => 'Failed to contact OpenAI'), 500);
         }
 
         $code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
         if ($code < 200 || $code >= 300) {
-            $body = wp_remote_retrieve_body($response);
-            $this->admin_log('Unexpected Botpress status ' . $code . ': ' . $body);
-            return new WP_REST_Response(array('error' => 'Unexpected response from Botpress'), 502);
+            $this->admin_log('Unexpected OpenAI status ' . $code . ': ' . $body);
+            return new WP_REST_Response(array('error' => 'Unexpected response from OpenAI'), 502);
         }
 
-        $messages_url = add_query_arg(
-            array(
-                'conversationId' => $conversation_id,
-                'botId'          => MHTP_BOTPRESS_BOT_ID,
-            ),
-            trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'messages'
-        );
-
-        $get_resp = wp_remote_get(
-            $messages_url,
-            array(
-                'headers' => array(
-                    'Authorization' => 'Bearer ' . MHTP_BOTPRESS_API_KEY,
-                ),
-                'timeout' => 15,
-            )
-        );
-
-        if (is_wp_error($get_resp)) {
-            $this->admin_log('Failed to poll messages: ' . $get_resp->get_error_message());
-            return new WP_REST_Response(array('error' => 'Failed to fetch reply'), 500);
-        }
-
-        $body = wp_remote_retrieve_body($get_resp);
-        if (empty($body)) {
-            $this->admin_log('Botpress messages response empty');
-            return new WP_REST_Response(array('error' => 'No reply'), 502);
-        }
-
-        $decoded = json_decode($body, true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->admin_log('Invalid JSON from Botpress messages: ' . json_last_error_msg());
+        $data = json_decode($body, true);
+        if (json_last_error() !== JSON_ERROR_NONE || empty($data['choices'][0]['message']['content'])) {
+            $this->admin_log('Invalid OpenAI response: ' . $body);
             return new WP_REST_Response(array('error' => 'Invalid reply'), 502);
         }
 
-        $reply = '';
-        if (isset($decoded['messages']) && is_array($decoded['messages'])) {
-            foreach (array_reverse($decoded['messages']) as $msg) {
-                $role = isset($msg['role']) ? $msg['role'] : (isset($msg['from']) ? $msg['from'] : '');
-                if ($role !== 'user' && ($msg['type'] ?? '') === 'text') {
-                    if (isset($msg['text'])) {
-                        $reply = $msg['text'];
-                    } elseif (isset($msg['payload']['text'])) {
-                        $reply = $msg['payload']['text'];
-                    }
-                    if ($reply !== '') {
-                        break;
-                    }
-                }
-            }
-        }
+        $reply = sanitize_text_field($data['choices'][0]['message']['content']);
+        $history[] = array('role' => 'assistant', 'content' => $reply);
+        update_user_meta(get_current_user_id(), 'mhtp_openai_history', $history);
 
-        $this->admin_log('Botpress reply: ' . $reply);
+        $this->admin_log('OpenAI reply: ' . $reply);
         return new WP_REST_Response(array('text' => $reply), 200);
     }
     
