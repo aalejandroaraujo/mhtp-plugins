@@ -19,7 +19,7 @@
 
     // Load history from sessionStorage
     history = loadHistory();
-    history.forEach(renderMessage);
+    history.forEach(msg => appendMessage(msg.side, msg.text, msg.ts));
 
     // Hide loading bubble after 1-2s if no assistant message arrives
     loadingTimer = setTimeout(hideLoadingBubble, 1000 + Math.random()*1000);
@@ -49,9 +49,11 @@
   }
 
   function updateHistory(side, text){
-    history.push({ side, text, ts: Date.now() });
+    const ts = Date.now();
+    history.push({ side, text, ts });
     history = history.slice(-50);
     saveHistory();
+    appendMessage(side, text, ts);
   }
 
   function hideLoadingBubble(){
@@ -76,7 +78,6 @@
 
   async function sendMessage(text){
     updateHistory('user', text);
-    renderMessage({ side: 'user', text });
 
     try{
       const res = await fetch('/wp-json/mhtp-chat/send', {
@@ -97,7 +98,6 @@
 
   function receiveMessage(text){
     updateHistory('assistant', text);
-    renderMessage({ side: 'assistant', text });
   }
 
   // Expose send/receive if needed
