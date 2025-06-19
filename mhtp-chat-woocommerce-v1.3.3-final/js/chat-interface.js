@@ -21,21 +21,53 @@ jQuery(document).ready(function($) {
     let conversationMessages = []; // Array to store all messages for saving
     let sessionStarted = false; // Track if session has been started with the server
     const isTypebotOnly = chatMessages.length === 0 && chatInput.length === 0 && chatMain.find('iframe').length > 0;
+
+    // Persist session information in sessionStorage
+    function saveSessionState(expertId, sessionId, endTime) {
+        const data = { expertId, sessionId, endTime };
+        sessionStorage.setItem('mhtp_active_session', JSON.stringify(data));
+    }
+
+    function loadSessionState() {
+        try {
+            const raw = sessionStorage.getItem('mhtp_active_session');
+            if (!raw) return null;
+            const data = JSON.parse(raw);
+            if (data.endTime && Date.now() < data.endTime) {
+                return data;
+            }
+        } catch (e) {}
+        return null;
+    }
+
+    function clearSessionState() {
+        sessionStorage.removeItem('mhtp_active_session');
+    }
     
     // Initialize chat
     function initChat() {
         // Get expert ID and session ID
         const expertId = getExpertId();
         const sessionId = getSessionId();
-        
+
         if (!expertId || !sessionId) {
             console.error('Missing expert ID or session ID');
             addSystemMessage('Error: No se pudo iniciar la sesión. Falta información del experto o sesión.');
             return;
         }
-        
-        // Start session with server via AJAX
-        startSessionWithServer(expertId, sessionId);
+        const saved = loadSessionState();
+        if (saved && saved.expertId === expertId) {
+            // Restore existing session without hitting the server
+            sessionActive = true;
+            sessionEndTime = new Date(saved.endTime);
+            $('.mhtp-session-info .mhtp-session-detail:first-child .mhtp-session-value').text(saved.sessionId);
+            setupEventListeners();
+            startSessionTimer();
+            chatInput.focus();
+        } else {
+            // Start session with server via AJAX
+            startSessionWithServer(expertId, sessionId);
+        }
     }
     
     // Get expert ID from the page
@@ -94,6 +126,7 @@ jQuery(document).ready(function($) {
                     // Set session end time
                     sessionEndTime = new Date();
                     sessionEndTime.setMinutes(sessionEndTime.getMinutes() + 45);
+                    saveSessionState(expertId, sessionId, sessionEndTime.getTime());
                     
                     // Start session timer
                     startSessionTimer();
@@ -319,17 +352,13 @@ jQuery(document).ready(function($) {
     
     // Start session timer
     function startSessionTimer() {
-        let timeLeft = sessionDuration;
-        
-        // Update timer display initially
-        sessionTimerElement.text(formatTime(timeLeft));
-        
-        sessionTimer = setInterval(function() {
-            timeLeft--;
-            
+        function update() {
+            const diff = Math.round((sessionEndTime - new Date()) / 1000);
+            const timeLeft = diff > 0 ? diff : 0;
+
             // Update timer display
             sessionTimerElement.text(formatTime(timeLeft));
-            
+
             // Add warning class when less than 5 minutes remain
             if (timeLeft <= 5 * 60) {
                 sessionTimerElement.addClass('warning');
@@ -345,7 +374,10 @@ jQuery(document).ready(function($) {
                 clearInterval(sessionTimer);
                 endSession();
             }
-        }, 1000);
+        }
+
+        update();
+        sessionTimer = setInterval(update, 1000);
     }
     
     // Generate PDF of conversation
@@ -422,6 +454,7 @@ jQuery(document).ready(function($) {
 
         sessionActive = false;
         clearInterval(sessionTimer);
+        clearSessionState();
 
         // If using the Typebot iframe only, grey it out
         if (chatMain.find('iframe').length) {
@@ -456,10 +489,18 @@ jQuery(document).ready(function($) {
     if (chatMessages.length > 0 && chatInput.length > 0) {
         initChat();
     } else if (sessionTimerElement.length > 0) {
-        // Fallback for Typebot embed – just enable controls and timer
-        sessionActive = true;
-        sessionEndTime = new Date();
-        sessionEndTime.setMinutes(sessionEndTime.getMinutes() + 45);
+        // Fallback for Typebot embed
+        const saved = loadSessionState();
+        if (saved) {
+            sessionActive = true;
+            sessionEndTime = new Date(saved.endTime);
+            $('.mhtp-session-info .mhtp-session-detail:first-child .mhtp-session-value').text(saved.sessionId);
+        } else {
+            sessionActive = true;
+            sessionEndTime = new Date();
+            sessionEndTime.setMinutes(sessionEndTime.getMinutes() + 45);
+            saveSessionState(getExpertId(), getSessionId(), sessionEndTime.getTime());
+        }
         setupEventListeners();
         startSessionTimer();
     }

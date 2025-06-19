@@ -62,7 +62,7 @@ if (!defined('ABSPATH')) {
                 </div>
                 
                 <!-- Conversation saving options -->
-                <div class="mhtp-conversation-options">
+                <div class="mhtp-conversation-options" style="display:none;">
                     <div class="mhtp-conversation-option">
                         <label for="mhtp-save-conversation">
                             <input type="checkbox" id="mhtp-save-conversation" checked>
