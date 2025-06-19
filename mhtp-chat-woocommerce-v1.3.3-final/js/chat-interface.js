@@ -12,6 +12,12 @@ jQuery(document).ready(function($) {
     const downloadConversationButton = $('#mhtp-download-conversation');
     const chatMain = $('.mhtp-chat-main');
     const sessionOverlay = $('#mhtp-session-overlay');
+
+    // Chat history and loading bubble
+    const HISTORY_KEY = 'chatHistory';
+    let chatHistory = [];
+    let loadingBubble = null;
+    let loadingTimer = null;
     
     // Session variables
     let sessionActive = false; // Start as false until session is confirmed
@@ -21,6 +27,20 @@ jQuery(document).ready(function($) {
     let conversationMessages = []; // Array to store all messages for saving
     let sessionStarted = false; // Track if session has been started with the server
     const isTypebotOnly = chatMessages.length === 0 && chatInput.length === 0 && chatMain.find('iframe').length > 0;
+
+    // Insert loading bubble and load history
+    if (chatMessages.length) {
+        loadingBubble = $('<div id="loading-bubble" class="msg loading">Conectando con tu especialista…</div>');
+        chatMessages.append(loadingBubble);
+        loadingTimer = setTimeout(hideLoadingBubble, 1000 + Math.random() * 1000);
+
+        chatHistory = loadHistory();
+        chatHistory.forEach(function(msg) {
+            const ts = new Date(msg.ts);
+            const time = (ts.getHours().toString().padStart(2, '0')) + ':' + (ts.getMinutes().toString().padStart(2, '0'));
+            renderMessage(msg.side, msg.text, time);
+        });
+    }
 
     // Persist session information in sessionStorage
     function saveSessionState(expertId, sessionId, endTime) {
@@ -42,6 +62,56 @@ jQuery(document).ready(function($) {
 
     function clearSessionState() {
         sessionStorage.removeItem('mhtp_active_session');
+    }
+
+    // Chat history helpers
+    function loadHistory() {
+        try {
+            const raw = sessionStorage.getItem(HISTORY_KEY);
+            const data = JSON.parse(raw);
+            return Array.isArray(data) ? data : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveHistory() {
+        sessionStorage.setItem(HISTORY_KEY, JSON.stringify(chatHistory.slice(-50)));
+    }
+
+    function updateHistory(side, text) {
+        chatHistory.push({ side, text, ts: Date.now() });
+        chatHistory = chatHistory.slice(-50);
+        saveHistory();
+    }
+
+    function hideLoadingBubble() {
+        if (loadingBubble) {
+            loadingBubble.remove();
+            loadingBubble = null;
+        }
+        if (loadingTimer) {
+            clearTimeout(loadingTimer);
+            loadingTimer = null;
+        }
+    }
+
+    function renderMessage(side, text, timestamp) {
+        const messageElement = $('<div class="mhtp-message"></div>');
+        messageElement.addClass(side === 'user' ? 'mhtp-message-user' : 'mhtp-message-expert');
+
+        const contentElement = $('<div class="mhtp-message-content"></div>');
+        contentElement.html('<p>' + text.replace(/\n/g, '<br>') + '</p>');
+
+        const timeElement = $('<div class="mhtp-message-time"></div>');
+        timeElement.text(timestamp);
+
+        messageElement.append(contentElement);
+        messageElement.append(timeElement);
+
+        chatMessages.append(messageElement);
+        if (side === 'expert') hideLoadingBubble();
+        scrollToBottom();
     }
     
     // Initialize chat
@@ -140,6 +210,8 @@ jQuery(document).ready(function($) {
                     // Store initial welcome message
                     const welcomeMessage = $('.mhtp-message-expert').first().find('.mhtp-message-content p').text();
                     storeMessage(welcomeMessage, 'expert', getCurrentTime());
+                    updateHistory('expert', welcomeMessage);
+                    hideLoadingBubble();
                     
                     // Add success message
                     addSystemMessage('Sesión iniciada correctamente. ¡Bienvenido!');
@@ -227,6 +299,7 @@ jQuery(document).ready(function($) {
             // Add message to chat immediately
             addMessage(message, 'user');
             storeMessage(message, 'user', getCurrentTime());
+            updateHistory('user', message);
             chatInput.val('');
 
             fetch(mhtpChatConfig.rest_url, {
@@ -243,6 +316,8 @@ jQuery(document).ready(function($) {
                     if (data.text) {
                         addMessage(data.text, 'expert');
                         storeMessage(data.text, 'expert', getCurrentTime());
+                        updateHistory('expert', data.text);
+                        hideLoadingBubble();
                     } else if (data.error) {
                         addSystemMessage('Error: ' + data.error);
                     }
