@@ -307,7 +307,6 @@ jQuery(document).ready(function($) {
             // Add message to chat immediately
             addMessage(message, 'user');
             storeMessage(message, 'user', getCurrentTime());
-            updateHistory('user', message);
             chatInput.val('');
 
             fetch(mhtpChatConfig.rest_url, {
@@ -324,7 +323,6 @@ jQuery(document).ready(function($) {
                     if (data.text) {
                         addMessage(data.text, 'expert');
                         storeMessage(data.text, 'expert', getCurrentTime());
-                        updateHistory('expert', data.text);
                         hideLoadingBubble();
                     } else if (data.error) {
                         addSystemMessage('Error: ' + data.error);
@@ -363,6 +361,7 @@ jQuery(document).ready(function($) {
         
         // Scroll to bottom
         scrollToBottom();
+        updateHistory(sender, message);
     }
     
     // Add system message
