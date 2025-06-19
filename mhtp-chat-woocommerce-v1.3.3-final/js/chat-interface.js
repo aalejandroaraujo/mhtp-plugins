@@ -47,7 +47,6 @@ jQuery(document).ready(function($) {
 
         // replay history using native renderer
         chatHistory = loadHistory();
-        console.log('[replay]', chatHistory.length);
         chatHistory.forEach(m => addMessage(m.text, m.side));
     });
 
@@ -89,7 +88,6 @@ jQuery(document).ready(function($) {
     }
 
     function updateHistory(side, text) {
-        console.log('[updateHistory]', side, text);
         chatHistory.push({ side, text, ts: Date.now() });
         chatHistory = chatHistory.slice(-50);
         saveHistory();
@@ -347,7 +345,6 @@ jQuery(document).ready(function($) {
 
     // Add message to chat
     function addMessage(message, sender) {
-        console.log('[addMessage]', sender, message);
         const messageElement = $('<div class="mhtp-message"></div>');
         messageElement.addClass(sender === 'user' ? 'mhtp-message-user' : 'mhtp-message-expert');
 
