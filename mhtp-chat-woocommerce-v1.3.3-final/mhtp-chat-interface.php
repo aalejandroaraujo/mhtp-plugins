@@ -23,6 +23,9 @@ define('MHTP_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 require_once MHTP_CHAT_PLUGIN_DIR . 'includes/class-mhtp-chat.php';
 define('MHTP_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MHTP_CHAT_PLUGIN_FILE', __FILE__);
+if (!defined('MHTP_CHAT_ENABLE_LOG')) {
+    define('MHTP_CHAT_ENABLE_LOG', false);
+}
 // Botpress Chat API base URL (no trailing slash)
 define('MHTP_BOTPRESS_CHAT_API', 'https://chat.botpress.cloud/v1');
 
@@ -334,7 +337,7 @@ class MHTP_Chat_Interface {
         $conversation_id = $this->get_or_create_conversation($user_id);
         if (is_wp_error($conversation_id)) {
             $error_msg = $conversation_id->get_error_message();
-            error_log('Failed to start conversation: ' . $error_msg);
+            $this->admin_log('Failed to start conversation: ' . $error_msg);
             wp_send_json_error(array('message' => 'Failed to start conversation: ' . $error_msg));
             return;
         }
@@ -426,20 +429,20 @@ class MHTP_Chat_Interface {
         );
 
         if (is_wp_error($response)) {
-            error_log('Conversation init failed: ' . $response->get_error_message());
+            $this->admin_log('Conversation init failed: ' . $response->get_error_message());
             return $response;
         }
 
         $code = wp_remote_retrieve_response_code($response);
         $body = wp_remote_retrieve_body($response);
         if ($code < 200 || $code >= 300) {
-            error_log('Unexpected status from Botpress (' . $code . '): ' . $body);
+            $this->admin_log('Unexpected status from Botpress (' . $code . '): ' . $body);
             return new WP_Error('bp_conversation_failed', 'Unexpected status from Botpress: ' . $code);
         }
 
         $decoded = json_decode($body, true);
         if (json_last_error() !== JSON_ERROR_NONE || empty($decoded['conversation']['id'])) {
-            error_log('Invalid conversation response: ' . $body);
+            $this->admin_log('Invalid conversation response: ' . $body);
             return new WP_Error('bp_conversation_failed', 'Invalid JSON response');
         }
 
@@ -456,12 +459,12 @@ class MHTP_Chat_Interface {
         $auth_header = $request->get_header('Authorization');
         $expected    = 'Bearer ' . MHTP_BOTPRESS_WEBHOOK_SECRET;
         if ($auth_header !== $expected) {
-            error_log('Webhook authorization failed: ' . $auth_header);
+            $this->admin_log('Webhook authorization failed: ' . $auth_header);
             return new WP_REST_Response(null, 401);
         }
 
         $payload = $request->get_json_params();
-        error_log('Botpress webhook received: ' . wp_json_encode($payload));
+        $this->admin_log('Botpress webhook received: ' . wp_json_encode($payload));
 
         // Attempt to extract the conversation ID and bot reply text
         $conversation_id = '';
@@ -498,7 +501,7 @@ class MHTP_Chat_Interface {
      * Register REST routes.
      */
     public function register_rest_routes() {
-        error_log('MHTP Chat Interface → register_rest_routes() invoked');
+        $this->admin_log('register_rest_routes invoked');
         register_rest_route(
             'mhtp-chat',
             '/message',
@@ -506,7 +509,6 @@ class MHTP_Chat_Interface {
                 'methods'             => 'POST',
                 'callback'            => array($this, 'rest_proxy_message'),
                 'permission_callback' => function() {
-                    error_log('Permission callback invoked by user ' . get_current_user_id());
                     return true;
                 },
                 'args'                => array(
@@ -538,7 +540,7 @@ class MHTP_Chat_Interface {
      * @return WP_REST_Response
      */
     public function rest_proxy_message(WP_REST_Request $request) {
-        error_log('→ rest_proxy_message payload=' . print_r($request->get_params(), true));
+        $this->admin_log('rest_proxy_message payload=' . wp_json_encode($request->get_params()));
         $message = $request->get_param('message');
 
         $conversation_id = get_user_meta(get_current_user_id(), 'mhtp_bp_conversation_id', true);
@@ -547,13 +549,13 @@ class MHTP_Chat_Interface {
             $conversation_id = $this->get_or_create_conversation(get_current_user_id());
             if (is_wp_error($conversation_id)) {
                 $error_msg = $conversation_id->get_error_message();
-                error_log('Failed to get conversation: ' . $error_msg);
+                $this->admin_log('Failed to get conversation: ' . $error_msg);
                 return new WP_REST_Response(array('error' => 'Conversation init failed'), 500);
             }
             update_user_meta(get_current_user_id(), 'mhtp_bp_conversation_id', $conversation_id);
         }
         if (empty(MHTP_BOTPRESS_API_KEY)) {
-            error_log('Botpress API key missing');
+            $this->admin_log('Botpress API key missing');
             return new WP_REST_Response(array('error' => 'Botpress not configured'), 500);
         }
         $botpress_url = trailingslashit(MHTP_BOTPRESS_CHAT_API) . 'messages';
@@ -579,14 +581,14 @@ class MHTP_Chat_Interface {
         );
 
         if (is_wp_error($response)) {
-            error_log('Botpress send failed: ' . $response->get_error_message());
+            $this->admin_log('Botpress send failed: ' . $response->get_error_message());
             return new WP_REST_Response(array('error' => 'Failed to contact Botpress'), 500);
         }
 
         $code = wp_remote_retrieve_response_code($response);
         if ($code < 200 || $code >= 300) {
             $body = wp_remote_retrieve_body($response);
-            error_log('Unexpected Botpress status ' . $code . ': ' . $body);
+            $this->admin_log('Unexpected Botpress status ' . $code . ': ' . $body);
             return new WP_REST_Response(array('error' => 'Unexpected response from Botpress'), 502);
         }
 
@@ -609,19 +611,19 @@ class MHTP_Chat_Interface {
         );
 
         if (is_wp_error($get_resp)) {
-            error_log('Failed to poll messages: ' . $get_resp->get_error_message());
+            $this->admin_log('Failed to poll messages: ' . $get_resp->get_error_message());
             return new WP_REST_Response(array('error' => 'Failed to fetch reply'), 500);
         }
 
         $body = wp_remote_retrieve_body($get_resp);
         if (empty($body)) {
-            error_log('Botpress messages response empty');
+            $this->admin_log('Botpress messages response empty');
             return new WP_REST_Response(array('error' => 'No reply'), 502);
         }
 
         $decoded = json_decode($body, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log('Invalid JSON from Botpress messages: ' . json_last_error_msg());
+            $this->admin_log('Invalid JSON from Botpress messages: ' . json_last_error_msg());
             return new WP_REST_Response(array('error' => 'Invalid reply'), 502);
         }
 
@@ -642,6 +644,7 @@ class MHTP_Chat_Interface {
             }
         }
 
+        $this->admin_log('Botpress reply: ' . $reply);
         return new WP_REST_Response(array('text' => $reply), 200);
     }
     
@@ -665,6 +668,18 @@ class MHTP_Chat_Interface {
         
         $usage_history[] = $usage;
         update_user_meta($user_id, 'mhtp_wc_session_usage', $usage_history);
+    }
+
+    /**
+     * Write a message to the admin log if enabled.
+     */
+    private function admin_log( $message ) {
+        if ( ! MHTP_CHAT_ENABLE_LOG ) {
+            return;
+        }
+        $upload = wp_upload_dir();
+        $file   = trailingslashit( $upload['basedir'] ) . 'mhtp-chat.log';
+        @file_put_contents( $file, '[' . current_time( 'mysql' ) . "] " . $message . PHP_EOL, FILE_APPEND );
     }
 }
 
