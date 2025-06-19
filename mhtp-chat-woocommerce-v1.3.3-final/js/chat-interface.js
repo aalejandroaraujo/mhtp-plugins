@@ -29,18 +29,26 @@ jQuery(document).ready(function($) {
     const isTypebotOnly = chatMessages.length === 0 && chatInput.length === 0 && chatMain.find('iframe').length > 0;
 
     // Insert loading bubble and load history
-    if (chatMessages.length) {
-        loadingBubble = $('<div id="loading-bubble" class="msg loading">Conectando con tu especialista…</div>');
-        chatMessages.prepend(loadingBubble);
-        loadingTimer = setTimeout(hideLoadingBubble, 1000 + Math.random() * 1000);
-
-        chatHistory = loadHistory();
-        chatHistory.forEach(function(msg) {
-            const ts = new Date(msg.ts);
-            const time = (ts.getHours().toString().padStart(2, '0')) + ':' + (ts.getMinutes().toString().padStart(2, '0'));
-            renderMessage(msg.side, msg.text, time);
-        });
+    // Wait until the container exists (poll max 2 s, every 100 ms)
+    function withChat(cb){
+        const tryBox = () => {
+            const box = $('#mhtp-chat-messages');
+            if (box.length){ clearInterval(id); cb(box); }
+        };
+        const id = setInterval(tryBox, 100);
+        tryBox();
     }
+
+    withChat(function(box){
+        // loading bubble
+        loadingBubble = $('<div id="loading-bubble" class="msg loading">Conectando con tu especialista…</div>');
+        box.append(loadingBubble);
+        loadingTimer = setTimeout(hideLoadingBubble, 1000 + Math.random()*1000);
+
+        // replay history using native renderer
+        chatHistory = loadHistory();
+        chatHistory.forEach(m => addMessage(m.text, m.side));
+    });
 
     // Persist session information in sessionStorage
     function saveSessionState(expertId, sessionId, endTime) {
