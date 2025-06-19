@@ -31,7 +31,7 @@ jQuery(document).ready(function($) {
     // Insert loading bubble and load history
     if (chatMessages.length) {
         loadingBubble = $('<div id="loading-bubble" class="msg loading">Conectando con tu especialista…</div>');
-        chatMessages.append(loadingBubble);
+        chatMessages.prepend(loadingBubble);
         loadingTimer = setTimeout(hideLoadingBubble, 1000 + Math.random() * 1000);
 
         chatHistory = loadHistory();
