@@ -1,4 +1,4 @@
-# MHTP Chat Interface - Version 3.1.4
+# MHTP Chat Interface - Version 3.1.5
 
 **Note:** This plugin was originally built for Botpress. It now includes
 built-in support for embedding a [Typebot](https://typebot.io) conversation
@@ -76,6 +76,9 @@ This plugin now properly handles session decrementation when users start a chat:
 
 ### 3.1.4
 * Load Typebot UMD widget and send store-conversation on session end. No other changes.
+
+### 3.1.5
+Removed legacy end-chat JS; no more 'Typebot not defined' error.
 
 ### 3.1.3
 * Added official Typebot JS SDK so sendCommand works; no other changes.

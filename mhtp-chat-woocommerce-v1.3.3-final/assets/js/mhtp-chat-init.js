@@ -72,14 +72,15 @@
 })();
 
 // Ensure the end-chat handler is attached once the DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('mhtp-end-session');
-    btn?.addEventListener('click', async () => {
-        console.log('End-chat click');
-        try {
-            await Typebot.sendCommand({ command: 'store-conversation' });
-        } catch (e) {
-            console.error('Typebot command failed:', e);
-        }
-    });
-});
+// Legacy end-chat handler (replaced by widget-ready snippet in template)
+// document.addEventListener('DOMContentLoaded', () => {
+//     const btn = document.getElementById('mhtp-end-session');
+//     btn?.addEventListener('click', async () => {
+//         console.log('End-chat click');
+//         try {
+//             await Typebot.sendCommand({ command: 'store-conversation' });
+//         } catch (e) {
+//             console.error('Typebot command failed:', e);
+//         }
+//     });
+// });
