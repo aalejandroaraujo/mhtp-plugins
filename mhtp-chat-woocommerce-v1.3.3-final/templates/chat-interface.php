@@ -114,6 +114,10 @@ if (!defined('ABSPATH')) {
                 esc_url($src)
             );
             ?>
+            <script id="typebot-sdk" src="https://cdn.typebot.io/widget.js"></script>
+            <script>
+              window.Typebot = window.typebotWidget;
+            </script>
             <div id="mhtp-session-overlay" class="mhtp-session-overlay" style="display:none;">
                 Tu sesión ha concluido
             </div>
