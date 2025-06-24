@@ -1,4 +1,4 @@
-# MHTP Chat Interface - Version 3.1.0
+# MHTP Chat Interface - Version 3.1.1
 
 **Note:** This plugin was originally built for Botpress. It now includes
 built-in support for embedding a [Typebot](https://typebot.io) conversation

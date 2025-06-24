@@ -22,10 +22,25 @@
     }
 
     /**
+     * Get the current user identifier (email) if available.
+     */
+    function getUserId() {
+        if (window.mhtpChatData && window.mhtpChatData.UserId) {
+            return window.mhtpChatData.UserId;
+        }
+        var fromUrl = getParam('UserId');
+        if (fromUrl) {
+            return fromUrl;
+        }
+        return '';
+    }
+
+    /**
      * Initialise the Typebot widget and attach the end chat handler.
      */
     function init() {
         var expertId = getExpertId();
+        var userId = getUserId();
 
         // Support both "Typebot" and "typebot" globals just in case.
         var TB = window.Typebot || window.typebot;
@@ -37,7 +52,7 @@
 
         try {
             TB.initStandard({
-                variables: { ExpertId: expertId }
+                variables: { ExpertId: expertId, UserId: userId }
             });
 
             // Ensure Typebot is accessible globally for later commands
