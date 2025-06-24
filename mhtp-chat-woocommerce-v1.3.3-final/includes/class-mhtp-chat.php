@@ -15,7 +15,7 @@ class MHTP_Chat {
 
         wp_enqueue_script(
             'mhtp-typebot-widget',
-            'https://cdn.typebot.co/widget.js',
+            'https://cdn.typebot.io/widget.js',
             array(),
             null,
             true

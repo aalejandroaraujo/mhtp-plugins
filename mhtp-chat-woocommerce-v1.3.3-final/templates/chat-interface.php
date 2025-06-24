@@ -89,6 +89,8 @@ if (!defined('ABSPATH')) {
             <?php
             $cfg      = get_option('mhtp_typebot_options');
             $url      = !empty($cfg['chatbot_url']) ? $cfg['chatbot_url'] : 'https://typebot.io/especialista-5gzhab4';
+            // Always use the .co domain for the embed
+            $url      = str_replace('typebot.io', 'typebot.co', $url);
             $selected = isset($cfg['selected_params']) && is_array($cfg['selected_params']) ? $cfg['selected_params'] : array();
 
             $current_user = wp_get_current_user();
@@ -114,11 +116,7 @@ if (!defined('ABSPATH')) {
                 esc_url($src)
             );
             ?>
-            <script
-              src="https://cdn.typebot.co/widget.js"
-              id="typebot-widget"
-              async
-            ></script>
+            <script src="https://cdn.typebot.io/widget.js" defer></script>
             <div id="mhtp-session-overlay" class="mhtp-session-overlay" style="display:none;">
                 Tu sesión ha concluido
             </div>
