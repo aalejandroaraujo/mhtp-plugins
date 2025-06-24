@@ -114,6 +114,11 @@ if (!defined('ABSPATH')) {
                 esc_url($src)
             );
             ?>
+            <script
+              src="https://cdn.typebot.co/widget.js"
+              id="typebot-widget"
+              async
+            ></script>
             <div id="mhtp-session-overlay" class="mhtp-session-overlay" style="display:none;">
                 Tu sesión ha concluido
             </div>
@@ -123,7 +128,6 @@ if (!defined('ABSPATH')) {
                     <div id="mhtp-session-timer" class="mhtp-session-timer">45:00</div>
                 </div>
             </div>
-            <script src="https://cdn.typebot.io/widget.js" defer></script>
             <script>
             document.addEventListener('typebot-widget-ready', () => {
               const btn = document.getElementById('mhtp-end-session');

@@ -43,10 +43,10 @@
         var userId = getUserId();
 
         // Support both "Typebot" and "typebot" globals just in case.
-        var TB = window.Typebot || window.typebot;
+        var TB = window.TypebotWidget;
 
         if (!TB || typeof TB.initStandard !== 'function') {
-            console.error('Typebot library not loaded');
+            console.error('TypebotWidget not loaded');
             return;
         }
 
@@ -64,10 +64,18 @@
 
     }
 
+    function waitForWidget() {
+        if (window.TypebotWidget) {
+            init();
+        } else {
+            setTimeout(waitForWidget, 50);
+        }
+    }
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', waitForWidget);
     } else {
-        init();
+        waitForWidget();
     }
 })();
 

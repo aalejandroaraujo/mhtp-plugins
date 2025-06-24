@@ -13,10 +13,18 @@ class MHTP_Chat {
         $user       = wp_get_current_user();
         $user_email = ( $user instanceof WP_User ) ? $user->user_email : '';
 
+        wp_enqueue_script(
+            'mhtp-typebot-widget',
+            'https://cdn.typebot.co/widget.js',
+            array(),
+            null,
+            true
+        );
+
         wp_register_script(
             'mhtp-chat-init',
             MHTP_CHAT_PLUGIN_URL . 'assets/js/mhtp-chat-init.js',
-            array(),
+            array( 'jquery', 'mhtp-typebot-widget' ),
             MHTP_CHAT_VERSION,
             true
         );
