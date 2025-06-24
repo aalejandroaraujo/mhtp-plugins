@@ -3,7 +3,7 @@
  * Plugin Name: MHTP Chat Interface
  * Plugin URI: https://mhtp.com
  * Description: Chat interface for Mental Health Triage Platform using Typebot
- * Version: 3.1.4
+ * Version: 3.1.5
  * Author: MHTP Team
  * Author URI: https://mhtp.com
  * Text Domain: mhtp-chat-interface
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('MHTP_CHAT_VERSION', '3.1.4');
+define('MHTP_CHAT_VERSION', '3.1.5');
 define('MHTP_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 require_once MHTP_CHAT_PLUGIN_DIR . 'includes/class-mhtp-chat.php';
 define('MHTP_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
