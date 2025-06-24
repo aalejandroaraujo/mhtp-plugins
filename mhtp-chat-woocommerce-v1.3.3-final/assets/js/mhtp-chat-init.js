@@ -64,18 +64,29 @@
 
     }
 
-    function waitForWidget() {
-        if (window.TypebotWidget) {
-            init();
-        } else {
-            setTimeout(waitForWidget, 50);
-        }
+    function waitForTypebotWidget() {
+        return new Promise(function (resolve) {
+            if (window.TypebotWidget) {
+                resolve();
+                return;
+            }
+            var timer = setInterval(function () {
+                if (window.TypebotWidget) {
+                    clearInterval(timer);
+                    resolve();
+                }
+            }, 50);
+        });
+    }
+
+    function start() {
+        waitForTypebotWidget().then(init);
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', waitForWidget);
+        document.addEventListener('DOMContentLoaded', start);
     } else {
-        waitForWidget();
+        start();
     }
 })();
 
