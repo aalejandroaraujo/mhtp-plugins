@@ -127,17 +127,29 @@ if (!defined('ABSPATH')) {
                 </div>
             </div>
             <script>
-            document.addEventListener('typebot-widget-ready', () => {
-              const btn = document.getElementById('mhtp-end-session');
-              if (!btn) return;
-              btn.addEventListener('click', async () => {
-                try {
-                  await window.Typebot.sendCommand({ command: 'store-conversation' });
-                } catch (e) {
-                  console.error('Typebot sendCommand failed:', e);
+            (function () {
+                function ready(cb) {
+                    if (window.TypebotWidget && typeof window.TypebotWidget.sendCommand === 'function') {
+                        cb();
+                    } else {
+                        window.addEventListener('typebot-widget-ready', cb, { once: true });
+                    }
                 }
-              });
-            });
+
+                ready(function () {
+                    var btn = document.getElementById('mhtp-end-session');
+                    if (!btn) { return; }
+                    btn.addEventListener('click', async function () {
+                        console.log('📤 store-conversation trigger');
+                        try {
+                            await window.TypebotWidget.sendCommand({ command: 'store-conversation' });
+                            console.log('✅ store-conversation success');
+                        } catch (err) {
+                            console.error('❌ store-conversation error', err);
+                        }
+                    });
+                });
+            })();
             </script>
         </div>
     </div>

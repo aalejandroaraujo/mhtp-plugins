@@ -4,6 +4,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class MHTP_Chat {
+    /** Plugin version */
+    const VERSION = '3.1.9';
     public function __construct() {
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
     }
