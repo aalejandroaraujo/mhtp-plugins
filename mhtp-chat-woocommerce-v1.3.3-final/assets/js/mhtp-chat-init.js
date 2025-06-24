@@ -62,23 +62,6 @@
             return;
         }
 
-        // Listen for the end chat button to trigger storing the conversation
-        var endBtn = document.getElementById('end-chat-btn');
-        if (endBtn) {
-            endBtn.addEventListener('click', async function () {
-                if (!window.Typebot || typeof window.Typebot.sendCommand !== 'function') {
-                    console.error('Typebot.sendCommand is unavailable.');
-                    return;
-                }
-                try {
-                    await window.Typebot.sendCommand({ command: 'store-conversation' });
-                } catch (error) {
-                    console.error('Failed to send store-conversation command to Typebot:', error);
-                }
-            });
-        } else {
-            console.error('End chat button with ID end-chat-btn not found.');
-        }
     }
 
     if (document.readyState === 'loading') {
@@ -87,3 +70,16 @@
         init();
     }
 })();
+
+// Ensure the end-chat handler is attached once the DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('mhtp-end-session');
+    btn?.addEventListener('click', async () => {
+        console.log('End-chat click');
+        try {
+            await Typebot.sendCommand({ command: 'store-conversation' });
+        } catch (e) {
+            console.error('Typebot command failed:', e);
+        }
+    });
+});
