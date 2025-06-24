@@ -114,12 +114,10 @@ if (!defined('ABSPATH')) {
                 esc_url($src)
             );
             ?>
-            <?php if ( ! wp_script_is( 'typebot-sdk', 'done' ) ) : ?>
-            <script id="typebot-sdk" type="module">
-              import Typebot from "https://cdn.jsdelivr.net/npm/@typebot.io/js@0/dist/web.js";
-              window.Typebot = Typebot;
+            <script id="typebot-sdk" src="https://cdn.typebot.io/widget.js"></script>
+            <script>
+              window.Typebot = window.typebotWidget;
             </script>
-            <?php endif; ?>
             <div id="mhtp-session-overlay" class="mhtp-session-overlay" style="display:none;">
                 Tu sesión ha concluido
             </div>
