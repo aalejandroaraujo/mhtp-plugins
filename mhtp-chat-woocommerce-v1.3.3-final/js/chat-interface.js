@@ -1,6 +1,6 @@
 jQuery(document).ready(function($) {
     // DOM elements
-    const chatMessages = $('#mhtp-chat-messages');
+    let chatMessages = $('#mhtp-chat-messages');
     const chatInput = $('#mhtp-chat-input');
     const sendButton = $('#mhtp-send-button');
     const endSessionButton = $('#mhtp-end-session');
@@ -40,6 +40,7 @@ jQuery(document).ready(function($) {
     }
 
     withChat(function(box){
+        chatMessages = box; // ensure chatMessages references the real container
         // loading bubble
         loadingBubble = $('<div id="loading-bubble" class="msg loading">Conectando con tu especialista…</div>');
         box.append(loadingBubble);
@@ -424,6 +425,7 @@ jQuery(document).ready(function($) {
 
     // Scroll chat to bottom
     function scrollToBottom() {
+        if (!chatMessages || !chatMessages.length || !chatMessages[0]) return;
         chatMessages.scrollTop(chatMessages[0].scrollHeight);
     }
 
