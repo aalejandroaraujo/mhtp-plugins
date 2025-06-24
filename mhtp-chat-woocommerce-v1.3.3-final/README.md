@@ -75,7 +75,7 @@ This plugin now properly handles session decrementation when users start a chat:
 ## Changelog
 
 ### 3.1.4
-* Switched to Typebot UMD widget for iframe embed; fixes Typebot is not defined.
+* Load Typebot UMD widget and send store-conversation on session end. No other changes.
 
 ### 3.1.3
 * Added official Typebot JS SDK so sendCommand works; no other changes.

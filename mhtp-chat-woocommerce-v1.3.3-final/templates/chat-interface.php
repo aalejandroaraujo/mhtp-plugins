@@ -114,10 +114,6 @@ if (!defined('ABSPATH')) {
                 esc_url($src)
             );
             ?>
-            <script id="typebot-sdk" src="https://cdn.typebot.io/widget.js"></script>
-            <script>
-              window.Typebot = window.typebotWidget;
-            </script>
             <div id="mhtp-session-overlay" class="mhtp-session-overlay" style="display:none;">
                 Tu sesión ha concluido
             </div>
@@ -127,6 +123,20 @@ if (!defined('ABSPATH')) {
                     <div id="mhtp-session-timer" class="mhtp-session-timer">45:00</div>
                 </div>
             </div>
+            <script src="https://cdn.typebot.io/widget.js" defer></script>
+            <script>
+            document.addEventListener('typebot-widget-ready', () => {
+              const btn = document.getElementById('mhtp-end-session');
+              if (!btn) return;
+              btn.addEventListener('click', async () => {
+                try {
+                  await window.Typebot.sendCommand({ command: 'store-conversation' });
+                } catch (e) {
+                  console.error('Typebot sendCommand failed:', e);
+                }
+              });
+            });
+            </script>
         </div>
     </div>
 </div>
