@@ -80,7 +80,23 @@
     }
 
     function start() {
-        waitForTypebotWidget().then(init);
+        waitForTypebotWidget().then(function () {
+            window.TypebotWidget.ready(function () {
+                init();
+
+                var endBtn = document.getElementById('mhtp-end-session');
+                if (endBtn) {
+                    endBtn.addEventListener('click', async function () {
+                        console.log('¡click finalizar! enviando store-conversation');
+                        try {
+                            await TypebotWidget.sendCommand({ command: 'store-conversation' });
+                        } catch (e) {
+                            console.error('Typebot sendCommand falló:', e);
+                        }
+                    });
+                }
+            });
+        });
     }
 
     if (document.readyState === 'loading') {

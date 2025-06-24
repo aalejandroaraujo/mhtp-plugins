@@ -116,7 +116,7 @@ if (!defined('ABSPATH')) {
                 esc_url($src)
             );
             ?>
-            <script src="https://cdn.typebot.io/widget.js" defer></script>
+            <script src="https://cdn.typebot.co/widget.js?rum=false" id="mhtp-typebot-widget-js" defer></script>
             <div id="mhtp-session-overlay" class="mhtp-session-overlay" style="display:none;">
                 Tu sesión ha concluido
             </div>
