@@ -91,12 +91,14 @@ if (!defined('ABSPATH')) {
             $url      = !empty($cfg['chatbot_url']) ? $cfg['chatbot_url'] : 'https://typebot.io/especialista-5gzhab4';
             $selected = isset($cfg['selected_params']) && is_array($cfg['selected_params']) ? $cfg['selected_params'] : array();
 
-            $available = array(
+            $current_user = wp_get_current_user();
+            $available    = array(
                 'ExpertId'       => $expert_id,
                 'ExpertName'     => !empty($expert['name']) ? $expert['name'] : '',
                 'Topic'          => isset($_GET['topic']) ? sanitize_text_field($_GET['topic']) : '',
                 'HistoryEnabled' => '1',
                 'IsClient'       => isset($_GET['is_client']) ? sanitize_text_field($_GET['is_client']) : '',
+                'UserId'         => $current_user instanceof WP_User ? $current_user->user_email : '',
             );
 
             $params = array();

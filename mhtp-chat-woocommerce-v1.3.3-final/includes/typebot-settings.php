@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class MHTP_Typebot_Settings {
 
-    private $params = array( 'ExpertId', 'ExpertName', 'Topic', 'HistoryEnabled', 'IsClient' );
+    private $params = array( 'ExpertId', 'ExpertName', 'Topic', 'HistoryEnabled', 'IsClient', 'UserId' );
 
     public function __construct() {
         add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
@@ -70,7 +70,7 @@ class MHTP_Typebot_Settings {
     public function param_count_render() {
         $options = get_option( 'mhtp_typebot_options' );
         $count   = isset( $options['param_count'] ) ? intval( $options['param_count'] ) : 1;
-        echo '<input id="param_count" type="number" name="mhtp_typebot_options[param_count]" value="' . esc_attr( $count ) . '" min="1" max="5" required>';
+        echo '<input id="param_count" type="number" name="mhtp_typebot_options[param_count]" value="' . esc_attr( $count ) . '" min="1" max="6" required>';
     }
 
     public function selected_params_render() {
@@ -86,7 +86,7 @@ class MHTP_Typebot_Settings {
     public function sanitize( $input ) {
         $output                  = array();
         $output['chatbot_url']   = isset( $input['chatbot_url'] ) ? esc_url_raw( $input['chatbot_url'] ) : '';
-        $output['param_count']   = isset( $input['param_count'] ) ? max( 1, min( 5, intval( $input['param_count'] ) ) ) : 1;
+        $output['param_count']   = isset( $input['param_count'] ) ? max( 1, min( 6, intval( $input['param_count'] ) ) ) : 1;
         $output['selected_params'] = array();
         if ( ! empty( $input['selected_params'] ) && is_array( $input['selected_params'] ) ) {
             foreach ( $input['selected_params'] as $param ) {
