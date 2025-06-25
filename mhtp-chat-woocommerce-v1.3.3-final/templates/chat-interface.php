@@ -110,10 +110,13 @@ if (!defined('ABSPATH')) {
                 }
             }
 
-            $src = add_query_arg($params, $url);
+            $src        = add_query_arg($params, $url);
+            $user_email = $current_user instanceof WP_User ? $current_user->user_email : '';
             echo sprintf(
-                '<iframe src="%1$s" width="100%%" height="600px" style="border:0;" allow="camera; microphone; autoplay; clipboard-write;"></iframe>',
-                esc_url($src)
+                '<typebot-widget id="mhtp-chat-widget" src="%1$s" expert-id="%2$s" user-id="%3$s" style="width:100%%;height:600px;"></typebot-widget>',
+                esc_url($src),
+                esc_attr($expert_id),
+                esc_attr($user_email)
             );
             ?>
             <div id="mhtp-session-overlay" class="mhtp-session-overlay" style="display:none;">
