@@ -3,7 +3,7 @@
  * Plugin Name: MHTP Chat Interface
  * Plugin URI: https://mhtp.com
  * Description: Chat interface for Mental Health Triage Platform using Typebot
- * Version: 3.1.8
+ * Version: 3.1.11
  * Author: MHTP Team
  * Author URI: https://mhtp.com
  * Text Domain: mhtp-chat-interface
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('MHTP_CHAT_VERSION', '3.1.8');
+define('MHTP_CHAT_VERSION', '3.1.11');
 define('MHTP_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 require_once MHTP_CHAT_PLUGIN_DIR . 'includes/class-mhtp-chat.php';
 define('MHTP_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -29,11 +29,11 @@ if (!defined('MHTP_CHAT_ENABLE_LOG')) {
 // Botpress Chat API base URL (no trailing slash)
 define('MHTP_BOTPRESS_CHAT_API', 'https://chat.botpress.cloud/v1');
 
-// Force the Typebot embed to use the .co domain
+// Force the Typebot embed to use the .io domain
 add_filter(
     'mhtp_typebot_embed_base',
     static function () {
-        return 'https://typebot.co/';
+        return 'https://typebot.io/';
     }
 );
 

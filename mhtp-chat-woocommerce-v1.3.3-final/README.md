@@ -1,4 +1,4 @@
-# MHTP Chat Interface - Version 3.1.10
+# MHTP Chat Interface - Version 3.1.11
 
 **Note:** This plugin was originally built for Botpress. It now includes
 built-in support for embedding a [Typebot](https://typebot.io) conversation
@@ -73,6 +73,11 @@ This plugin now properly handles session decrementation when users start a chat:
 3. If no sessions of either type are available, the user receives an error message
 
 ## Changelog
+
+### 3.1.11
+- Fixed widget domain: now loading from `cdn.typebot.io`
+- Enqueued widget script before chat init
+- Added polling for `window.TypebotWidget` to prevent race conditions
 
 ### 3.1.9
 * Store-conversation command now triggered by the widget-ready listener.

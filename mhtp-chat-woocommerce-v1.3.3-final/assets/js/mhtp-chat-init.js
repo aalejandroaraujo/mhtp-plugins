@@ -36,7 +36,7 @@
     }
 
     /**
-     * Initialise the Typebot widget and attach the end chat handler.
+     * Initialise the Typebot widget.
      */
     function initChat() {
         var expertId = getExpertId();
@@ -64,25 +64,29 @@
 
     }
 
-    const waitForWidget = () => {
-        if (window.TypebotWidget) {
-            window.TypebotWidget.ready(function () {
-                initChat();
-                var btn = document.getElementById('mhtp-end-session');
-                if (btn) {
-                    btn.addEventListener('click', async function () {
-                        try {
-                            await window.TypebotWidget.sendCommand({ command: 'store-conversation' });
-                        } catch (e) {
-                            console.error('Typebot command failed:', e);
-                        }
-                    });
-                }
-            });
-        } else {
-            setTimeout(waitForWidget, 50);
-        }
-    };
+    function attachEndHandler() {
+        var btn = document.getElementById('mhtp-end-session');
+        if (!btn) return;
+        btn.addEventListener('click', async function () {
+            try {
+                await window.TypebotWidget.sendCommand({ command: 'store-conversation' });
+            } catch (e) {
+                console.error('Typebot command failed:', e);
+            }
+        });
+    }
 
-    waitForWidget();
+    function waitForWidget(cb) {
+        const t0 = Date.now();
+        (function poll() {
+            if (window.TypebotWidget) return cb();
+            if (Date.now() - t0 < 5000) return setTimeout(poll, 100);
+            console.error('TypebotWidget never loaded');
+        })();
+    }
+
+    waitForWidget(function () {
+        initChat();
+        attachEndHandler();
+    });
 })();
