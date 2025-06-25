@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class MHTP_Chat {
     /** Plugin version */
-    const VERSION = '3.1.11';
+    const VERSION = '3.1.12';
     public function __construct() {
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
     }
@@ -15,13 +15,15 @@ class MHTP_Chat {
         $user       = wp_get_current_user();
         $user_email = ( $user instanceof WP_User ) ? $user->user_email : '';
 
-        wp_enqueue_script(
+        wp_register_script(
             'mhtp-typebot-widget',
             'https://cdn.typebot.io/widget.js',
             array(),
-            null,
+            MHTP_CHAT_VERSION,
             true
         );
+
+        wp_enqueue_script( 'mhtp-typebot-widget' );
 
         wp_register_script(
             'mhtp-chat-init',
