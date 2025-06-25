@@ -88,7 +88,7 @@ if (!defined('ABSPATH')) {
         <div class="mhtp-chat-main">
             <?php
             $cfg      = get_option('mhtp_typebot_options');
-            $url      = !empty($cfg['chatbot_url']) ? $cfg['chatbot_url'] : 'https://typebot.io/especialista-5gzhab4';
+            $url      = !empty($cfg['chatbot_url']) ? $cfg['chatbot_url'] : 'https://typebot.co/especialista-5gzhab4';
             // Always use the .co domain for the embed
             $url      = str_replace('typebot.io', 'typebot.co', $url);
             $selected = isset($cfg['selected_params']) && is_array($cfg['selected_params']) ? $cfg['selected_params'] : array();
@@ -116,7 +116,6 @@ if (!defined('ABSPATH')) {
                 esc_url($src)
             );
             ?>
-            <script src="https://cdn.typebot.co/widget.js?rum=false" id="mhtp-typebot-widget-js" defer></script>
             <div id="mhtp-session-overlay" class="mhtp-session-overlay" style="display:none;">
                 Tu sesión ha concluido
             </div>
@@ -126,31 +125,6 @@ if (!defined('ABSPATH')) {
                     <div id="mhtp-session-timer" class="mhtp-session-timer">45:00</div>
                 </div>
             </div>
-            <script>
-            (function () {
-                function ready(cb) {
-                    if (window.TypebotWidget && typeof window.TypebotWidget.sendCommand === 'function') {
-                        cb();
-                    } else {
-                        window.addEventListener('typebot-widget-ready', cb, { once: true });
-                    }
-                }
-
-                ready(function () {
-                    var btn = document.getElementById('mhtp-end-session');
-                    if (!btn) { return; }
-                    btn.addEventListener('click', async function () {
-                        console.log('📤 store-conversation trigger');
-                        try {
-                            await window.TypebotWidget.sendCommand({ command: 'store-conversation' });
-                            console.log('✅ store-conversation success');
-                        } catch (err) {
-                            console.error('❌ store-conversation error', err);
-                        }
-                    });
-                });
-            })();
-            </script>
         </div>
     </div>
 </div>

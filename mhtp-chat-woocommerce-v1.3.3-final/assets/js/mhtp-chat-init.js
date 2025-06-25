@@ -38,7 +38,7 @@
     /**
      * Initialise the Typebot widget and attach the end chat handler.
      */
-    function init() {
+    function initChat() {
         var expertId = getExpertId();
         var userId = getUserId();
 
@@ -64,44 +64,25 @@
 
     }
 
-    function waitForTypebotWidget() {
-        return new Promise(function (resolve) {
-            if (window.TypebotWidget) {
-                resolve();
-                return;
-            }
-            var timer = setInterval(function () {
-                if (window.TypebotWidget) {
-                    clearInterval(timer);
-                    resolve();
-                }
-            }, 50);
-        });
-    }
-
-    function start() {
-        waitForTypebotWidget().then(function () {
+    const waitForWidget = () => {
+        if (window.TypebotWidget) {
             window.TypebotWidget.ready(function () {
-                init();
-
-                var endBtn = document.getElementById('mhtp-end-session');
-                if (endBtn) {
-                    endBtn.addEventListener('click', async function () {
-                        console.log('¡click finalizar! enviando store-conversation');
+                initChat();
+                var btn = document.getElementById('mhtp-end-session');
+                if (btn) {
+                    btn.addEventListener('click', async function () {
                         try {
-                            await TypebotWidget.sendCommand({ command: 'store-conversation' });
+                            await window.TypebotWidget.sendCommand({ command: 'store-conversation' });
                         } catch (e) {
-                            console.error('Typebot sendCommand falló:', e);
+                            console.error('Typebot command failed:', e);
                         }
                     });
                 }
             });
-        });
-    }
+        } else {
+            setTimeout(waitForWidget, 50);
+        }
+    };
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', start);
-    } else {
-        start();
-    }
+    waitForWidget();
 })();
