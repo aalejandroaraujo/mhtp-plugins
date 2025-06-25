@@ -88,9 +88,9 @@ if (!defined('ABSPATH')) {
         <div class="mhtp-chat-main">
             <?php
             $cfg      = get_option('mhtp_typebot_options');
-            $url      = !empty($cfg['chatbot_url']) ? $cfg['chatbot_url'] : 'https://typebot.co/especialista-5gzhab4';
-            // Always use the .co domain for the embed
-            $url      = str_replace('typebot.io', 'typebot.co', $url);
+            $url      = !empty($cfg['chatbot_url']) ? $cfg['chatbot_url'] : 'https://typebot.io/especialista-5gzhab4';
+            // Always use the .io domain for the embed
+            $url      = str_replace('typebot.co', 'typebot.io', $url);
             $selected = isset($cfg['selected_params']) && is_array($cfg['selected_params']) ? $cfg['selected_params'] : array();
 
             $current_user = wp_get_current_user();

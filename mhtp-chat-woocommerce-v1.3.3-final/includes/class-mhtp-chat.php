@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class MHTP_Chat {
     /** Plugin version */
-    const VERSION = '3.1.10';
+    const VERSION = '3.1.11';
     public function __construct() {
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
     }
@@ -17,7 +17,7 @@ class MHTP_Chat {
 
         wp_enqueue_script(
             'mhtp-typebot-widget',
-            'https://cdn.typebot.co/widget.js',
+            'https://cdn.typebot.io/widget.js',
             array(),
             null,
             true
